@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 8000
 const cloudinary = require('cloudinary')
 
 const auth = require('./routes/auth');
+const discount = require('./routes/discount');
 
 console.log(process.env.NODE_ENV) 
 
@@ -39,6 +40,7 @@ app.use(errorHandler)
 // Routes
 app.use('/', require('./routes/root'))
 app.use('/api/v1', auth);
+
 
 //404 not found routes
 app.all('*', (req, res) => {

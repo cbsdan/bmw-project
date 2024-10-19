@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom'
 import styles from './styles.module.css';
 import axios from 'axios';
+import {authenticate, getUser} from '../../utils/helper'
 
 const Login = () => {
     const [data, setData] = useState({
@@ -9,6 +10,7 @@ const Login = () => {
         password: ""
     })
     const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const handleChange = ({currentTarget: input}) => {
         setData({...data, [input.name]: input.value});
@@ -16,15 +18,22 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
+        console.log(data)
         try {
-            const url =`http://localhost:4001/api/auth`;
-            const {data: res} = await axios.post(url, data);
-            console.log(data);
-            
-            localStorage.setItem("token", res.data);
-            window.location = "/"
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
 
-            console.log(res.message)
+            const url =`http://localhost:4000/api/v1/login`;
+            const {data : response} = await axios.post(url, data, config);
+            console.log(response);
+            authenticate(response, () => window.location = "/")
+            setLoading(false)
+
+            console.log(response.message)
         } catch(error) {
             if (error.response && error.response.status >= 400 && error.response.status <=500){
                 console.log(error.response.data)
@@ -38,6 +47,8 @@ const Login = () => {
             
                 setError(error.response.data.message)
             }  
+            setLoading(false)
+
         }
 
     }
@@ -66,8 +77,9 @@ const Login = () => {
                             className={styles.input}
                         />
                         {error && <div className={styles.error_msg}>{error}</div>}
-                        <button type="submit" className={styles.green_btn}>
-                            Sign In
+                        <button type="submit" className={styles.green_btn} disabled={loading}>
+                            {loading ? 'Loading...' : 'Log In'}
+
                         </button>
                     </form>
                 </div>

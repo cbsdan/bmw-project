@@ -13,7 +13,7 @@ const Register = () => {
     });
     const [avatar, setAvatar] = useState(null);
     const [error, setError] = useState("");
-
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
 
     const handleChange = ({ currentTarget: input }) => {
@@ -27,6 +27,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
         try {
             const formData = new FormData();
             for (const key in data) {
@@ -68,6 +69,7 @@ const Register = () => {
             
                 setError(message);
             }            
+            setLoading(false)
         }
     };
 
@@ -78,7 +80,7 @@ const Register = () => {
                     <h1>Welcome Back</h1>
                     <Link to='/login'>
                         <button type='button' className={styles.white_btn}>
-                            Sign In
+                            Log In
                         </button>
                     </Link>
                 </div>
@@ -125,8 +127,8 @@ const Register = () => {
                             onChange={handleChange}
                         />
                         {error && <div className={styles.error_msg}>{error}</div>}
-                        <button type="submit" className={styles.green_btn}>
-                            Sign Up
+                        <button type="submit" className={styles.green_btn} disabled={loading}>
+                            {loading ? 'Loading...' : 'Sign Up'}
                         </button>
                     </form>
                 </div>

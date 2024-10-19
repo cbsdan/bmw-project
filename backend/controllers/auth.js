@@ -13,7 +13,7 @@ exports.registerUser = async (req, res, next) => {
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: 'Email already exists', // You can customize this message
+                message: 'Email already exists', 
                 errors: ["Email already exists"]
             });
         }
@@ -66,7 +66,7 @@ exports.registerUser = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message: 'Your registration is successful!',  // Add this line
+            message: 'Your registration is successful!', 
             user,
             token
         });
@@ -77,5 +77,42 @@ exports.registerUser = async (req, res, next) => {
             success: false,
             message: 'Server error'
         });
+    }
+};
+
+
+exports.loginUser = async (req, res, next) => {
+    const { email, password } = req.body;
+    
+    console.log(req.body);
+    // Check if email and password are entered
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Please enter email & password' });
+    }
+
+    try {
+        // Finding user in database
+        let user = await User.findOne({ email }).select('+password');
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid Email' });
+        }
+
+        // Check if password is correct
+        const isPasswordMatched = await user.comparePassword(password);
+        if (!isPasswordMatched) {
+            return res.status(401).json({ message: 'Wrong Password' });
+        }
+
+        const token = user.getJwtToken();
+
+        return res.status(200).json({
+            success: true,
+            user,
+            token,
+        });
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
