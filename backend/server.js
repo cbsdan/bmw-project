@@ -40,7 +40,7 @@ app.use(errorHandler)
 // Routes
 app.use('/', require('./routes/root'))
 app.use('/api/v1', auth);
-
+app.use('/api/v1', discount);
 
 //404 not found routes
 app.all('*', (req, res) => {
