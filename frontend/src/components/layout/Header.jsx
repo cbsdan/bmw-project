@@ -22,10 +22,12 @@ const Header = () => {
     }, [])
     return (
         <>
-            <nav className="navbar row m-0 bg-warning mb-3">
+            <nav id="headerNav" className="navbar row m-0 bg-warning mb-3">
                 <div className="col-12 col-md-3 py-0 m-0">
-                    <div className="navbar-brand">
-                        <h3>BMW</h3>
+                    <div className="navbar-brand pl-5">
+                        <Link to="/" className='text-dark' style={{textDecoration: "none"}}>
+                            <h3 >BMW</h3>
+                        </Link>
                     </div>
                 </div> 
 
@@ -60,7 +62,7 @@ const Header = () => {
                         
                             <div className="dropdown-menu" aria-labelledby="dropDownMenuButton">
                                 {user && user.role === 'admin' && (
-                                    <Link className="dropdown-item" to="/">Admin Page</Link>
+                                    <Link className="dropdown-item" to="/admin/">Dashboard</Link>
                                 )}
                                 <Link className="dropdown-item" to="/">Page 1</Link>
                                 <Link className="dropdown-item" to="/">Page 2</Link>
