@@ -12,7 +12,7 @@ const Sidebar = () => {
                     </li>
 
                     <li>
-                        <a href="#discountSubmenu" data-toggle="collapse" aria-expanded="false" className="dropdown-toggle ">
+                        <a href="#discountSubmenu" data-toggle="collapse" aria-expanded="false" className="dropdown-toggle d-flex align-items-center gap-2">
                             <i className="fa fa-tag"></i> Discount <span> </span>
                         </a>
 
@@ -24,6 +24,18 @@ const Sidebar = () => {
                             <li>
                                 <Link to="/admin/new-discount"><i className="fa fa-plus"></i>Create</Link>
                             </li>   
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#carsSubmenu" data-toggle="collapse" aria-expanded="false" className="dropdown-toggle d-flex align-items-center gap-2">
+                            <i className="fa fa-car"></i> Cars <span> </span>
+                        </a>
+
+                        <ul className="collapse list-unstyled pt-2 pl-4" id="carsSubmenu">
+                            <li>
+                                <Link to="/admin/create-car"><i className="fa fa-plus"></i> Create</Link>
+                            </li>
                         </ul>
                     </li>
 

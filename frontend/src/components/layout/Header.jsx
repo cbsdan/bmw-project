@@ -64,8 +64,7 @@ const Header = () => {
                                 {user && user.role === 'admin' && (
                                     <Link className="dropdown-item" to="/admin/">Dashboard</Link>
                                 )}
-                                <Link className="dropdown-item" to="/">Page 1</Link>
-                                <Link className="dropdown-item" to="/">Page 2</Link>
+                                <Link className="dropdown-item" to="/">Home</Link>
 
                             </div>
                         </div>
