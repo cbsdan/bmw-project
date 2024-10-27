@@ -112,7 +112,66 @@ exports.loginUser = async (req, res, next) => {
             token,
         });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error(error); 
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+
+        if (!users) {
+            return res.status(400).json({message: "no users found"})
+
+        }
+        return res.status(200).json({
+            success: true,
+            users
+        })
+    } catch (error) {
+        console.error(error); 
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+exports.getUserDetails = async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return res.status(400).json({ message: `User does not found with id: ${req.params.id}` })  
+    }
+
+    return res.status(200).json({
+        success: true,
+        user
+    })
+}
+
+exports.updateUser = async (req, res, next) => {
+    try {
+        console.log(`Request Body: ${JSON.stringify(req.body)}`);
+
+        const newUserData = {};
+        if (req.body.firstName) newUserData.firstName = req.body.firstName;
+        if (req.body.lastName) newUserData.lastName = req.body.lastName;
+        if (req.body.email) newUserData.email = req.body.email;
+        if (req.body.role) newUserData.role = req.body.role;
+
+        const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+            new: true,
+            runValidators: true,
+        });
+    
+        if (!user) {
+            return res.status(400).json({ message: `User not updated ${req.params.id}` });
+        }
+    
+        return res.status(200).json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
