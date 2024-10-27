@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {Link} from 'react-router-dom'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios';
@@ -125,7 +126,10 @@ const CreateCar = () => {
         <div>
             <Sidebar />
             <form onSubmit={handleSubmit} className='margin-left-300 p-3'>
-                <h2 >Create a New Car Listing</h2>
+                <div className='d-flex align-items-center justify-content-between'>
+                    <h2 >Create a New Car Listing</h2>
+                    <Link to="/admin/cars" className="btn btn-secondary mt-3 ml-2">Back to List</Link>
+                </div>
                 <hr/>
                 <div style={styles.formGroup}>
                     <label>Model:</label>

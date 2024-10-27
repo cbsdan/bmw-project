@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import {Link} from 'react-router-dom'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -167,7 +168,10 @@ const UpdateCar = () => {
             <div>
                 <Sidebar />
                 <form onSubmit={submitHandler} className='margin-left-300 p-3'>
-                    <h2 >Update Car Listing</h2>
+                    <div className='d-flex align-items-center justify-content-between'>
+                        <h2>Update Car Details</h2>
+                        <Link to="/admin/cars" className="btn btn-secondary mt-3 ml-2">Back to List</Link>
+                    </div>
                     <hr/>
                     <div className='form-group'>
                         <label>Images</label>

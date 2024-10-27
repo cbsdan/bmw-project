@@ -30,6 +30,17 @@ export const getUser = () => {
     }
 }
 
+export const isAdmin = () => {
+    if (typeof window !== 'undefined') {
+        const user = sessionStorage.getItem('user');
+        if (user) {
+            const userObj = JSON.parse(user);
+            return userObj.role === 'admin';
+        }
+    }
+    return false;
+};
+
 export const logout = next => {
     if (window !== 'undefined') {
         sessionStorage.removeItem('token');

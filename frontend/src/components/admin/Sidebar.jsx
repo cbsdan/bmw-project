@@ -34,6 +34,9 @@ const Sidebar = () => {
 
                         <ul className="collapse list-unstyled pt-2 pl-4" id="carsSubmenu">
                             <li>
+                                <Link to="/admin/cars"><i className="fa fa-clipboard"></i> All</Link>
+                            </li>
+                            <li>
                                 <Link to="/admin/create-car"><i className="fa fa-plus"></i> Create</Link>
                             </li>
                         </ul>

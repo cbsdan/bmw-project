@@ -1,4 +1,5 @@
 import {Routes, Route } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import Register from './components/Register/index'
 import Login from './components/login/index'
 import Header from './components/layout/Header'
@@ -10,10 +11,16 @@ import NewDiscount from './components/admin/Discount/NewDiscount'
 import UpdateDiscount from './components/admin/Discount/UpdateDiscount'
 import CreateCar from './components/admin/Car/CreateCar'
 import UpdateCar from './components/admin/Car/UpdateCar'
+import CarList from './components/admin/Car/CarList'
+import {isAdmin} from './utils/helper'
 
 function App() {
 
   const AdminRoutes = () => {
+    if (!isAdmin()) {
+      return <Navigate to="/" />
+    }
+    
     return (
         <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -23,7 +30,7 @@ function App() {
             <Route path="/new-discount" element={<NewDiscount />} />
             <Route path="/update-discount/:id" element={<UpdateDiscount />} />
             
-            <Route path="/cars" element={<DiscountList />} />
+            <Route path="/cars" element={<CarList />} />
             <Route path="/create-car" element={<CreateCar />} />
             <Route path="/update-car/:id" element={<UpdateCar />} />
         </Routes>

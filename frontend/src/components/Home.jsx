@@ -118,21 +118,10 @@ const Home = () => {
 
                                 <div className="card-price-wrapper">
                                     <p className="card-price">
-                                    <strong>${car.pricePerDay} / day</strong>
+                                    <strong>₱{car.pricePerDay} / day</strong>
                                     </p>
                                     <button className="btn fav-btn" aria-label="Add to favourite list">
                                     <ion-icon name="heart-outline"></ion-icon>
-                                    </button>
-                                    <Link 
-                                to={`/admin/update-car/${car._id}`}
-                                    className="btn btn-info">
-                                    Edit
-                                    </Link>
-                                    <button 
-                                    className="btn btn-danger" 
-                                    onClick={() => deleteCar(car._id, `${car.brand} ${car.model}`)} 
-                                    >
-                                    Delete
                                     </button>
                                 </div>
 
