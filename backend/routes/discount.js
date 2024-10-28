@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require("../utils/multer");
-const {isAuthenticatedUser} = require("../middleware/auth") 
+const {isAdmin} = require("../middleware/auth") 
 
 const { 
     createDiscount,
@@ -11,11 +11,11 @@ const {
     deleteDiscount
 } = require('../controllers/discountCode');
 
-router.get('/discounts', isAuthenticatedUser, getDiscounts);
-router.get('/discounts/:id', isAuthenticatedUser, getDiscountById);
-router.post('/create-discount', isAuthenticatedUser, upload.single('logo'), createDiscount);
-router.put('/discount/:id', isAuthenticatedUser, upload.single('logo'), updateDiscount);
-router.delete('/discount/:id', isAuthenticatedUser,  deleteDiscount);
+router.get('/discounts', getDiscounts);
+router.get('/discounts/:id', getDiscountById);
+router.post('/create-discount', isAdmin, upload.single('logo'), createDiscount);
+router.put('/discount/:id', isAdmin, upload.single('logo'), updateDiscount);
+router.delete('/discount/:id', isAdmin,  deleteDiscount);
 
 
 module.exports = router;

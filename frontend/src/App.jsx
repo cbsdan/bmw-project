@@ -13,6 +13,7 @@ import CreateCar from './components/admin/Car/CreateCar'
 import UpdateCar from './components/admin/Car/UpdateCar'
 import CarList from './components/admin/Car/CarList'
 import {isAdmin} from './utils/helper'
+import UserList from './components/admin/User/UserList'
 
 function App() {
 
@@ -25,6 +26,8 @@ function App() {
         <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
+
+            <Route path="/all-users" element={<UserList />} />
 
             <Route path="/discounts" element={<DiscountList />} />
             <Route path="/new-discount" element={<NewDiscount />} />

@@ -12,8 +12,12 @@ const Sidebar = () => {
                     </li>
 
                     <li>
+                        <Link to="/admin/all-users"><i className="fa fa-user"></i> Users</Link>
+                    </li>
+
+                    <li>
                         <a href="#discountSubmenu" data-toggle="collapse" aria-expanded="false" className="dropdown-toggle d-flex align-items-center gap-2">
-                            <i className="fa fa-tag"></i> Discount <span> </span>
+                            <i className="fa fa-tag"></i> Discounts <span> </span>
                         </a>
 
                         <ul className="collapse list-unstyled pt-2 pl-4" id="discountSubmenu">

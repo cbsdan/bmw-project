@@ -100,6 +100,50 @@ main#home h1 {
 }
 
 
+/* Form Modal  */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center vertically */
+    z-index: 1050; /* Ensure it is on top of other content */
+}
+
+.modal-dialog {
+    max-width: 500px; /* Set a max-width for the dialog */
+    width: 100%; /* Full width */
+}
+
+
+/* Loader */
+.loader {
+    background-color: #f8f9fa; /* Light background color */
+}
+
+.loading-text {
+    font-size: 2rem;
+    color: #007bff; /* Bootstrap primary color */
+    animation: pulse 1s infinite; /* Add pulse animation */
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5; /* Fade out */
+    }
+    100% {
+        opacity: 1; /* Fade back in */
+    }
+}
+
+
 /*-----------------------------------*\
   #style.css
 \*-----------------------------------*/
