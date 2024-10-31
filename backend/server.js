@@ -18,6 +18,7 @@ const cloudinary = require('cloudinary')
 const auth = require('./routes/auth');
 const discount = require('./routes/discount');
 const carRoutes = require('./routes/carRoutes');
+const favoriteCarRoutes = require('./routes/favoriteCarRoutes');
 
 console.log(process.env.NODE_ENV) 
 
@@ -43,6 +44,7 @@ app.use('/', require('./routes/root'))
 app.use('/api/v1', auth);
 app.use('/api/v1', discount);
 app.use('/api/v1', carRoutes);
+app.use('/api/v1', favoriteCarRoutes);
 
 //404 not found routes
 app.all('*', (req, res) => {
