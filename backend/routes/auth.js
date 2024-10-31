@@ -13,6 +13,15 @@ const {
     updateUserPassword
 } = require('../controllers/auth');
 
+
+const {
+    createUserInfo,
+    getUserInfo,
+    getAllUserInfo,
+    updateUserInfo
+} = require('../controllers/userInfoController');
+
+
 router.post('/register', upload.single('avatar'), registerUser);
 router.post('/login', loginUser);
 router.get('/admin/all-users', isAdmin, getAllUsers);
@@ -21,5 +30,9 @@ router.put('/admin/update-user/:id', isAdmin, updateUser);
 router.put('/admin/update-avatar/:id', upload.single('avatar'), updateUserAvatar);
 router.put('/admin/update-password/:id', updateUserPassword);
 
+router.get('/user-info', isAuthenticatedUser, getAllUserInfo)
+router.get('/user-info/:userId', isAuthenticatedUser, getUserInfo)
+router.post('/user-info', upload.fields([{ name: 'frontSide' }, { name: 'backSide' }, { name: 'selfie' }]), isAuthenticatedUser, createUserInfo)
+router.put('/user-info/:id', upload.fields([{ name: 'frontSide' }, { name: 'backSide' }, { name: 'selfie' }]), isAuthenticatedUser, updateUserInfo)
 
 module.exports = router;

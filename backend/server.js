@@ -19,6 +19,7 @@ const auth = require('./routes/auth');
 const discount = require('./routes/discount');
 const carRoutes = require('./routes/carRoutes');
 const favoriteCarRoutes = require('./routes/favoriteCarRoutes');
+const maintenanceRecord = require('./routes/recordRoute')
 
 console.log(process.env.NODE_ENV) 
 
@@ -45,6 +46,7 @@ app.use('/api/v1', auth);
 app.use('/api/v1', discount);
 app.use('/api/v1', carRoutes);
 app.use('/api/v1', favoriteCarRoutes);
+app.use('/api/v1', maintenanceRecord);
 
 //404 not found routes
 app.all('*', (req, res) => {
