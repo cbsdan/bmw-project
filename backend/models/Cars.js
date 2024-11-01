@@ -88,6 +88,11 @@ const carSchema = new mongoose.Schema({
   pickUpLocation: {
     type: String,
     maxlength: [255, 'Pickup location cannot exceed 255 characters']
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   }
 }, { timestamps: true });
 
