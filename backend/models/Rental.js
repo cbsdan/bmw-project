@@ -13,7 +13,6 @@ const rentalSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
-
     pickUpDate: { 
         type: Date, 
         required: true 

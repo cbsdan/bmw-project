@@ -11,10 +11,10 @@ const {
 } = require('../controllers/rental');
 
 router.get('/rentals', isAuthenticatedUser, getAllRentDetails);
-router.get('/rentals/:id', getRentDetails);
-router.post('/createRental', createRent);
+router.get('/rentals/:id', isAuthenticatedUser, getRentDetails);
+router.post('/createRental', isAuthenticatedUser, createRent);
 router.route('/rentals/:id')
-    .put( updateRent)
-    .delete( deleteRent);
+    .put( isAuthenticatedUser, updateRent)
+    .delete( isAuthenticatedUser, deleteRent);
 
 module.exports = router;
