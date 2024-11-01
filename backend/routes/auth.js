@@ -18,7 +18,8 @@ const {
     createUserInfo,
     getUserInfo,
     getAllUserInfo,
-    updateUserInfo
+    updateUserInfo,
+    deleteUserInfo
 } = require('../controllers/userInfoController');
 
 
@@ -34,5 +35,6 @@ router.get('/user-info', isAuthenticatedUser, getAllUserInfo)
 router.get('/user-info/:userId', isAuthenticatedUser, getUserInfo)
 router.post('/user-info', upload.fields([{ name: 'frontSide' }, { name: 'backSide' }, { name: 'selfie' }]), isAuthenticatedUser, createUserInfo)
 router.put('/user-info/:id', upload.fields([{ name: 'frontSide' }, { name: 'backSide' }, { name: 'selfie' }]), isAuthenticatedUser, updateUserInfo)
+router.delete('/user-info/:id', isAuthenticatedUser, deleteUserInfo)
 
 module.exports = router;

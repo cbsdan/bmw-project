@@ -27,7 +27,6 @@ const driverLicenseSchema = new Schema({
   },
   isApproved: {
     type: Boolean,
-    required: true,
     default: false
   }
 });
