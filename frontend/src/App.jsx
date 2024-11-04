@@ -12,8 +12,9 @@ import UpdateDiscount from './components/admin/Discount/UpdateDiscount'
 import CreateCar from './components/admin/Car/CreateCar'
 import UpdateCar from './components/admin/Car/UpdateCar'
 import CarList from './components/admin/Car/CarList'
-import {isAdmin} from './utils/helper'
+import {isAdmin, isAuthenticated} from './utils/helper'
 import UserList from './components/admin/User/UserList'
+import FavoriteCars from './components/user/FavoriteCars'
 
 function App() {
 
@@ -38,13 +39,26 @@ function App() {
             <Route path="/update-car/:id" element={<UpdateCar />} />
         </Routes>
     );
-};
+  };
+
+  const UserRoute = () => {
+    if (!isAuthenticated()) {
+      return <Navigate to="/" />
+    }
+
+    return (
+      <Routes>
+        <Route path="/favorite-cars" element={<FavoriteCars />} />
+      </Routes>
+    )
+  }
 
   return (
     <>
       <Header />
       <Routes>
         <Route path="/admin/*" element={<AdminRoutes />}/>
+        <Route path="/*" element={<UserRoute />}/>
         <Route path="/" exact element={<Home />}/>
         <Route path="/register" exact element={<Register />}/> 
         <Route path="/login" exact element={<Login />}/> 

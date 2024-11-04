@@ -10,6 +10,17 @@ export const authenticate = (data, next) => {
     next();
 }
 
+export const isAuthenticated = () => {
+    if (typeof window !== 'undefined') {
+        const token = sessionStorage.getItem('token');
+        const user = sessionStorage.getItem('user');
+        if (token && user) {
+            return true;
+        }
+    }
+    return false;
+};
+
 export const getToken = () => {
     if (window !== 'undefined') {
         if (sessionStorage.getItem('token')) {
