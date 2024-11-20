@@ -1,7 +1,7 @@
 import React from 'react';
 import ClipLoader from 'react-spinners/ClipLoader';
 
-const Loader = ({ message }) => {
+const LoadingSpinner = ({ message }) => {
   return (
     <div
       style={{
@@ -20,4 +20,4 @@ const Loader = ({ message }) => {
   );
 };
 
-export default Loader;
+export default LoadingSpinner;
