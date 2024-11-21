@@ -206,7 +206,7 @@ exports.getSingleCar = async (req, res) => {
         }
 
         const { 
-            model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
+            _id, model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
             vehicleType, pricePerDay, isAutoApproved, description, termsAndConditions, 
             pickUpLocation, owner, images 
         } = car;
@@ -214,7 +214,7 @@ exports.getSingleCar = async (req, res) => {
         return res.status(200).json({
             success: true,
             car: {
-                model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
+                _id, model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
                 vehicleType, pricePerDay, isAutoApproved, description, termsAndConditions, 
                 pickUpLocation, owner, images
             },
@@ -229,3 +229,34 @@ exports.getSingleCar = async (req, res) => {
     }
 };
 
+exports.getCarsByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const cars = await Cars.find({ owner: userId }).populate('owner');
+
+        if (!cars || cars.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No cars found for this user',
+            });
+        }
+
+        const carsWithImages = cars.map(car => ({
+            ...car.toObject(),
+            images: car.images.map(image => image.url)
+        }));
+
+        return res.status(200).json({
+            success: true,
+            cars: carsWithImages,
+        });
+    } catch (error) {
+        console.error('Error fetching cars by user ID:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error.message,
+        });
+    }
+};

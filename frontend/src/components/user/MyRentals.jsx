@@ -28,7 +28,9 @@ const MyRentals = () => {
           config
         );
 
-        setRentals(response.data);
+        if (!response.data.message) {
+          setRentals(response.data);
+        }
       } catch (error) {
         setError("Error retrieving rentals. Please try again.");
       } finally {

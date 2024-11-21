@@ -18,7 +18,7 @@ const Alert = ({ message, type }) => {
         });
       }
     }
-  }, [message, type]);
+  }, []);
 
   return (
     <>

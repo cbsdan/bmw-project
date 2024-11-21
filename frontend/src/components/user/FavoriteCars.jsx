@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getToken, getUser } from '../../utils/helper';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from 'react-router-dom';
 
 const FavoriteCars = () => {
     const [favoriteCars, setFavoriteCars] = useState([]);
@@ -67,7 +68,8 @@ const FavoriteCars = () => {
                             <div className="card">
                                 <img src={favCar.car.images[0].url} className="card-img-top" alt={`${favCar.car.brand} ${favCar.car.model}`} />
                                 <div className="card-body">
-                                    <h5 className="card-title">{favCar.car.brand} {favCar.car.model}</h5>
+                                    <Link to={`/car/info/${favCar.car._id}`} ><h5 className="card-title">{favCar.car.brand} {favCar.car.model}</h5></Link>
+                                    <p className="card-text">{favCar.car.description}</p>
                                     <p className="card-text">{favCar.car.description}</p>
                                     <button className="btn btn-danger" onClick={() => handleDeleteFavorite(favCar._id)}>
                                         <i className="fas fa-trash-alt"></i> Remove from Favorites

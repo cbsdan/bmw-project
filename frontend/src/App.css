@@ -135,6 +135,10 @@ main#home h1 {
     object-fit: cover;  
     height: 500px;  
 }
+.fixed-height-image {
+    object-fit: cover;  
+    height: 350px;  
+}
 @keyframes pulse {
     0% {
         opacity: 1;

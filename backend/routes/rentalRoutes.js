@@ -8,6 +8,7 @@ const {
   getRentDetails,
   updateRent,
   myRentals,
+  myCarRental,
   deleteRent,
   getRentalsByCarId
 } = require("../controllers/rental");
@@ -16,6 +17,7 @@ router.get("/rentals", isAuthenticatedUser, getAllRentDetails);
 router.get("/rentals/:id", isAuthenticatedUser, getRentDetails);
 router.post("/createRental", isAuthenticatedUser, createRent);
 router.get("/my-rentals/:renterId", isAuthenticatedUser, myRentals);
+router.get("/my-car-rentals/:ownerId", isAuthenticatedUser, myCarRental);
 router.get("/car-rentals/:carId", getRentalsByCarId);
 router
   .route("/rentals/:id")

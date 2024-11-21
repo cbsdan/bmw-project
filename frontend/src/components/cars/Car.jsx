@@ -293,6 +293,7 @@ const Car = () => {
                 <thead>
                   <tr>
                     <th>Rental ID</th>
+                    <th>Renter</th>
                     <th>Pick-Up Date</th>
                     <th>Return Date</th>
                     <th>Status</th>
@@ -302,6 +303,7 @@ const Car = () => {
                   {carRentals.map((rental) => (
                     <tr key={rental._id}>
                       <td>{rental._id}</td>
+                      <td>{rental.renter.firstName} ***</td>
                       <td>{new Date(rental.pickUpDate).toLocaleString()}</td>
                       <td>{new Date(rental.returnDate).toLocaleString()}</td>
                       <td>{rental.status}</td>
