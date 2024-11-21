@@ -15,6 +15,7 @@ import CarList from './components/admin/Car/CarList'
 import {isAdmin, isAuthenticated} from './utils/helper'
 import UserList from './components/admin/User/UserList'
 import FavoriteCars from './components/user/FavoriteCars'
+import Car from './components/cars/Car'
 
 function App() {
 
@@ -53,11 +54,19 @@ function App() {
     )
   }
 
+  const CarRoutes = () => {
+    return (
+      <Routes>
+        <Route path="/info/:id" element={<Car />} />
+      </Routes>
+    )
+  }
   return (
     <>
       <Header />
       <Routes>
         <Route path="/admin/*" element={<AdminRoutes />}/>
+        <Route path="/car/*" element={<CarRoutes />}/>
         <Route path="/*" element={<UserRoute />}/>
         <Route path="/" exact element={<Home />}/>
         <Route path="/register" exact element={<Register />}/> 

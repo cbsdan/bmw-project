@@ -87,7 +87,7 @@ const Home = () => {
     useEffect(() => {
         fetchCars();
         fetchFavoriteCars();
-    }, [favoriteCars]);
+    }, []);
 
     const isFavorite = (carId) => {
         return favoriteCars.some(favCar => favCar.car._id === carId);
@@ -134,7 +134,7 @@ const Home = () => {
                                         <div className="card-content">
                                             <div className="card-title-wrapper">
                                                 <h3 className="h3 card-title">
-                                                    <Link to="#">{`Brand: ${car.brand} Model: ${car.model}`}</Link>
+                                                    <Link to={`/car/info/${car._id}`}>{`${car.model} ${car.brand}`}</Link>
                                                 </h3>
                                                 <data className="year" value={car.year}>
                                                     {car.year}
