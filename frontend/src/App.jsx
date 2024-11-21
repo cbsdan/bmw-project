@@ -16,6 +16,8 @@ import {isAdmin, isAuthenticated} from './utils/helper'
 import UserList from './components/admin/User/UserList'
 import FavoriteCars from './components/user/FavoriteCars'
 import Car from './components/cars/Car'
+import RentalList from './components/admin/Rental/RentalList'
+import MyRentals from './components/user/MyRentals'
 
 function App() {
 
@@ -38,6 +40,8 @@ function App() {
             <Route path="/cars" element={<CarList />} />
             <Route path="/create-car" element={<CreateCar />} />
             <Route path="/update-car/:id" element={<UpdateCar />} />
+
+            <Route path="/rentals" element={<RentalList />} />
         </Routes>
     );
   };
@@ -50,6 +54,7 @@ function App() {
     return (
       <Routes>
         <Route path="/favorite-cars" element={<FavoriteCars />} />
+        <Route path="/my-rentals" element={<MyRentals />} />
       </Routes>
     )
   }

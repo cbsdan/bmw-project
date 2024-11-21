@@ -68,3 +68,19 @@ export const succesMsg = (message = '') => toast.success(message, {
     position: 'bottom-right'
 })
 
+export const formatDate = (dateStr) => {
+    const dateObj = new Date(dateStr);
+
+    const options = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+  
+    const formattedDate = dateObj.toLocaleString('en-US', options);
+    const [datePart, timePart] = formattedDate.split(', ');
+    return `${datePart.replace(/\//g, '-')} ${timePart}`;
+  };

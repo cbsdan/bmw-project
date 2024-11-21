@@ -1,5 +1,16 @@
 const Rental = require('../models/Rental');
 
+const isCarOnRental = async (carId) => {
+    try {
+        const statuses = ["Pending", "Confirmed", "Active"];
+        const rental = await Rental.findOne({ car: carId, status: { $in: statuses } });
+        return rental ? true : false;
+    } catch (error) {
+        console.error('Error checking car rental status:', error);
+        throw new Error('Error checking car rental status');
+    }
+};
+
 const createRent = async (req, res) => {
     try {
         console.log(req.body)
@@ -7,6 +18,11 @@ const createRent = async (req, res) => {
 
         if (!car || !renter || !pickUpDate || !returnDate || !status) {
             return res.status(400).json({ message: 'All fields are required.' });
+        }
+
+        const carOnRental = await isCarOnRental(car);
+        if (carOnRental) {
+            return res.status(400).json({ message: 'Car is currently on rental.' });
         }
 
         const rental = new Rental(req.body);
@@ -26,6 +42,7 @@ const createRent = async (req, res) => {
         res.status(500).json({ message: 'Error creating rental', error });
     }
 };
+
 
 const updateRent = async (req, res) => {
     try {
@@ -59,7 +76,7 @@ const getAllRentDetails = async (req, res) => {
         const rentals = await Rental.find().populate({
             path: 'car',
             populate: { path: 'owner' }
-          }).populate('renter discountCode');
+          }).populate('renter discountCode').sort({ createdAt: -1 });
           
         res.json(rentals);
     } catch (error) {
@@ -67,14 +84,35 @@ const getAllRentDetails = async (req, res) => {
     }
 };
 
-// Get rental details by ID
+const myRentals = async (req, res) => {
+    try {
+        const { renterId } = req.params; 
+
+        const rentals = await Rental.find({ renter: renterId })
+            .populate({
+                path: 'car',
+                populate: { path: 'owner' }
+            })
+            .populate('renter discountCode').sort({ createdAt: -1 });
+
+        if (rentals.length === 0) {
+            return res.status(404).json({ message: 'No rentals found for this user' });
+        }
+
+        res.json(rentals);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving rentals', error });
+    }
+};
+
 const getRentDetails = async (req, res) => {
     try {
         const { id } = req.params;
         const rental = await Rental.findById(id).populate({
             path: 'car',
             populate: { path: 'owner' }
-          }).populate('renter discountCode');
+          }).populate('renter discountCode').sort({ createdAt: -1 });
         if (!rental) {
             return res.status(404).json({ message: 'Rental not found' });
         }
@@ -84,10 +122,35 @@ const getRentDetails = async (req, res) => {
     }
 };
 
+const getRentalsByCarId = async (req, res) => {
+    try {
+        const { carId } = req.params;
+
+        const rentals = await Rental.find({ car: carId })
+            .populate({
+                path: 'car',
+                populate: { path: 'owner' }
+            })
+            .populate('renter discountCode')
+            .sort({ createdAt: -1 }); 
+
+        if (rentals.length === 0) {
+            return res.status(404).json({ message: 'No rentals found for this car' });
+        }
+
+        res.json(rentals);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving rentals', error });
+    }
+};
+
 module.exports = {
     createRent,
     updateRent,
     deleteRent,
     getAllRentDetails,
-    getRentDetails
+    getRentDetails,
+    myRentals,
+    getRentalsByCarId
 };

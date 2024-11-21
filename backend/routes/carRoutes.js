@@ -8,12 +8,12 @@ const {
     getAllCars, 
     deleteCar, 
     updateCar, 
-    getCarDetails 
+    getSingleCar 
 } = require('../controllers/carControllers'); 
 
 
 router.get('/Cars', getAllCars)
-router.get('/Cars/:id', getCarDetails); 
+router.get('/Cars/:id', getSingleCar); 
 router.post('/CreateCar', isAuthenticatedUser, upload.array('images', 10), createCar);
 router.route('/Cars/:id' ).put(isAuthenticatedUser, upload.array('images', 10), updateCar).delete(isAuthenticatedUser, deleteCar);
 

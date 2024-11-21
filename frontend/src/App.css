@@ -131,6 +131,10 @@ main#home h1 {
     animation: pulse 1s infinite; /* Add pulse animation */
 }
 
+.fixed-carousel-height-image {
+    object-fit: cover;  
+    height: 500px;  
+}
 @keyframes pulse {
     0% {
         opacity: 1;

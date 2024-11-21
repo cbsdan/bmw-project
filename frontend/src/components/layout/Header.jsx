@@ -69,6 +69,11 @@ const Header = () => {
                                         <Link className="dropdown-item" to="/favorite-cars">Favorites</Link>
                                     )
                                 }
+                                {
+                                    user && (
+                                        <Link className="dropdown-item" to="/my-rentals">My Rentals</Link>
+                                    )
+                                }
                                 <Link className="dropdown-item" to="/">Home</Link>
 
                             </div>

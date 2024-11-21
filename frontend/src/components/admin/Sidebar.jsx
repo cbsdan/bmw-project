@@ -46,6 +46,9 @@ const Sidebar = () => {
                         </ul>
                     </li>
 
+                    <li>
+                        <Link to="/admin/rentals"><i className="fa fa-clipboard"></i>Rentals</Link>
+                    </li>
                 </ul>
             </nav>
         </div>

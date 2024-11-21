@@ -1,5 +1,7 @@
 const Cars = require('../models/Cars');
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary');
+const Rental = require('../models/Rental');
+const FavoriteCar = require('../models/FavoriteCar');
 
 
 exports.createCar = async (req, res) => {
@@ -121,6 +123,10 @@ exports.getAllCars = async (req, res) => {
             return res.status(404).json({ message: 'Car not found' }); 
         }
         
+        await FavoriteCar.deleteMany({ carId });
+
+        await Rental.deleteMany({ carId });
+
         res.status(200).json({ message: 'Car deleted successfully', deletedCar }); 
     } catch (error) {
         console.error('Error deleting car:', error); 
@@ -187,33 +193,30 @@ exports.updateCar = async (req, res, next) => {
 
 
 
-exports.getCarDetails = async (req, res) => {
-    const { id } = req.params; 
-    console.log("requesting")
-    console.log(id);
+exports.getSingleCar = async (req, res) => {
     try {
+        const { id } = req.params;
+        const car = await Cars.findById(id).populate('owner');
+        
+        if (!car) {
+            return res.status(404).json({
+                success: false,
+                message: 'Car not found',
+            });
+        }
 
-        const car = await Cars.findById(id); 
-        console.log(car);
+        const { 
+            model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
+            vehicleType, pricePerDay, isAutoApproved, description, termsAndConditions, 
+            pickUpLocation, owner, images 
+        } = car;
+
         return res.status(200).json({
             success: true,
             car: {
-                model: car.model,
-                brand: car.brand,
-                year: car.year,
-                seatCapacity: car.seatCapacity,
-                fuel: car.fuel,
-                mileage: car.mileage,
-                transmission: car.transmission,
-                displacement: car.displacement,
-                vehicleType: car.vehicleType,
-                pricePerDay: car.pricePerDay,
-                isAutoApproved: car.isAutoApproved,
-                description: car.description,
-                termsAndConditions: car.termsAndConditions,
-                pickUpLocation: car.pickUpLocation,
-                owner: car.owner,
-                images: car.images, 
+                model, brand, year, seatCapacity, fuel, mileage, transmission, displacement, 
+                vehicleType, pricePerDay, isAutoApproved, description, termsAndConditions, 
+                pickUpLocation, owner, images
             },
         });
     } catch (error) {
@@ -221,7 +224,8 @@ exports.getCarDetails = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: 'Server error',
-            error: error.message, 
+            error: error.message,
         });
     }
 };
+
