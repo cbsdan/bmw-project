@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../../config/firebase-config';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import styles from './styles.module.css';
 import axios from 'axios';
+import { errMsg } from '../../utils/helper';
 
 const Register = () => {
     const [data, setData] = useState({
@@ -29,7 +32,12 @@ const Register = () => {
         e.preventDefault();
         setLoading(true)
         try {
+            await createUserWithEmailAndPassword(auth, data.email, data.password);
+            const user = auth.currentUser;
+            console.log(user)
+
             const formData = new FormData();
+            formData.append('uid', user.uid)
             for (const key in data) {
                 formData.append(key, data[key]);
             }
@@ -37,24 +45,21 @@ const Register = () => {
                 formData.append('avatar', avatar);
             }
 
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            };
+            if (user) {
+                const config = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                };
+                await axios.post(`${import.meta.env.VITE_API}/register`, formData, config)
 
-            const url = `http://localhost:4000/api/v1/register`;
-
-            const { data: res } = await axios.post(url, formData, config);
-
-            if (res.success) {
-                toast.success(res.message, { // Display the success message
+                toast.success("User Registered Successfully!", { 
                     position: "bottom-right",
                 });
+
+                navigate("/login");
             }
-            
-            navigate("/login");
-            console.log(res.message);
+
         } catch (error) {
             if (error.response && error.response.status >= 400 && error.response.status <= 500) {
                 const { errors, message } = error.response.data;
@@ -68,7 +73,11 @@ const Register = () => {
                 }
             
                 setError(message);
-            }            
+            }    
+            if (error.message) {
+                errMsg("Error" + error.message)
+            }        
+        } finally {
             setLoading(false)
         }
     };

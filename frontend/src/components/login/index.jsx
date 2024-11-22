@@ -1,13 +1,15 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../config/firebase-config";
 import { useState } from 'react';
 import { Link } from 'react-router-dom'
 import styles from './styles.module.css';
 import axios from 'axios';
-import {authenticate, getUser} from '../../utils/helper'
+import {authenticate, errMsg, succesMsg} from '../../utils/helper'
 
 const Login = () => {
     const [data, setData] = useState({
         email: "",
-        password: ""
+        password: "",
     })
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
@@ -21,19 +23,30 @@ const Login = () => {
         setLoading(true)
         console.log(data)
         try {
+            const result = await signInWithEmailAndPassword(auth, data.email, data.password);
+            console.log(result.user)
+            const idToken = await result.user.getIdToken()
+
             const config = {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             }
-
+            
             const url =`http://localhost:4000/api/v1/login`;
-            const {data : response} = await axios.post(url, data, config);
+            const {data : response} = await axios.post(url, {uid: result.user.uid}, config);
             console.log(response);
-            authenticate(response, () => window.location = "/")
-            setLoading(false)
+            if (response.success) {
+                const userInfo = {
+                    token: idToken,
+                    user: response.user
+                }
+                succesMsg("Login Successfully!")
+                authenticate(userInfo, () => window.location = "/")
+            } else {
+                errMsg("Login Failed")
+            }
 
-            console.log(response.message)
         } catch(error) {
             if (error.response && error.response.status >= 400 && error.response.status <=500){
                 console.log(error.response.data)
@@ -47,8 +60,13 @@ const Login = () => {
             
                 setError(error.response.data.message)
             }  
-            setLoading(false)
+            if (error.message) {
+                errMsg("Login Failed")
+            }
+            
 
+        } finally {
+            setLoading(false)
         }
 
     }
@@ -57,7 +75,7 @@ const Login = () => {
             <div className={styles.login_form_container}>
                 <div className={styles.left}>
                     <form className={styles.form_container} onSubmit={handleSubmit}>
-                        <h1>Login to your Account</h1>
+                        <h1 className='py-3'>Login to your Account</h1>
                         <input 
                             type="text"
                             placeholder='Email'
@@ -81,6 +99,8 @@ const Login = () => {
                             {loading ? 'Loading...' : 'Log In'}
 
                         </button>
+                        <p>--------Or--------</p>
+                        <button className={`${styles.green_btn}`}>Login In with Google</button>
                     </form>
                 </div>
                 <div className={styles.right}>
