@@ -9,11 +9,15 @@ const {
     deleteCar, 
     updateCar, 
     getSingleCar,
-    getCarsByUserId
+    getCarsByUserId,
+    getAllCarsInfinite,
+    filterCars,
 } = require('../controllers/carControllers'); 
 
 
 router.get('/Cars', getAllCars)
+router.get("/Cars/infinite", getAllCarsInfinite);
+router.get("/Cars/filter", filterCars);
 router.get('/Cars/:id', getSingleCar); 
 router.get('/my-cars/:userId', isAuthenticatedUser, getCarsByUserId); 
 router.post('/CreateCar', isAuthenticatedUser, upload.array('images', 10), createCar);

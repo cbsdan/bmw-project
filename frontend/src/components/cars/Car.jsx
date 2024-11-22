@@ -110,6 +110,8 @@ const Car = () => {
         pickUpDate: pickupDate.toISOString().slice(0, 19),
         returnDate: returnDate.toISOString().slice(0, 19),
         status: "Pending",
+        paymentMethod: paymentMode,
+        paymentStatus: "Paid"
       };
 
       if (discountCode) {
@@ -363,59 +365,69 @@ const Car = () => {
           </Card>
           {carRating.length > 0 && (
             <div className="mt-4">
-              <h3>Car Rating</h3>
+              <h3 className="pb-3">Car Rating</h3>
               <Grid container spacing={4}>
-  {carRating.map((rating, index) => (
-    <Grid container item xs={12} md={6} lg={12} key={index} spacing={2}>
-      {/* Rating Content */}
-      <Grid item xs={12} lg={8} md={6}>
-        <Card variant="outlined" sx={{ boxShadow: 'none' }}>
-          <CardContent>
-            <Typography variant="h6" component="div">
-              {rating.renter.firstName} ***
-            </Typography>
-            <Typography variant="body1">
-              Rating:{" "}
-              <Rating value={rating.rating} precision={0.5} readOnly />
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              {rating.comment}
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Date Created:{" "}
-              {new Date(rating.createdAt).toLocaleDateString()}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+                {carRating.map((rating, index) => (
+                  <Grid
+                    container
+                    item
+                    xs={12}
+                    md={6}
+                    lg={12}
+                    key={index}
+                    spacing={1}
+                  >
+                    {/* Rating Content */}
+                    <Grid item xs={12} lg={8} md={6} className="m-0 p-1 pt-0">
+                      <Card variant="outlined" sx={{ boxShadow: "none" }}>
+                        <CardContent>
+                          <Typography variant="h6" component="div">
+                            {rating.renter.firstName} ***
+                          </Typography>
+                          <Typography variant="body1">
+                            Rating:{" "}
+                            <Rating
+                              value={rating.rating}
+                              precision={0.5}
+                              readOnly
+                            />
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {rating.comment}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Date Created:{" "}
+                            {new Date(rating.createdAt).toLocaleDateString()}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
 
-      {/* Image Content */}
-      <Grid item xs={12} lg={4} md={6}>
-        {rating.images && rating.images.length > 0 && (
-          <Card variant="outlined" sx={{ boxShadow: 'none' }}>
-            <Carousel>
-              {rating.images.map((image, idx) => (
-                <Carousel.Item key={idx}>
-                  <CardMedia
-                    component="img"
-                    alt={`Review Image ${idx + 1}`}
-                    height="140"
-                    image={image.url}
-                    title={`Review Image ${idx + 1}`}
-                  />
-                </Carousel.Item>
-              ))}
-            </Carousel>
-          </Card>
-        )}
-      </Grid>
-    </Grid>
-  ))}
-</Grid>
-
+                    {/* Image Content */}
+                    <Grid item xs={12} lg={4} md={6} className="m-0 p-1 pt-0">
+                      {rating.images && rating.images.length > 0 && (
+                        <Card variant="outlined" sx={{ boxShadow: "none" }}>
+                          <Carousel>
+                            {rating.images.map((image, idx) => (
+                              <Carousel.Item key={idx}>
+                                <CardMedia
+                                  component="img"
+                                  alt={`Review Image ${idx + 1}`}
+                                  height="140"
+                                  image={image.url}
+                                  title={`Review Image ${idx + 1}`}
+                                />
+                              </Carousel.Item>
+                            ))}
+                          </Carousel>
+                        </Card>
+                      )}
+                    </Grid>
+                  </Grid>
+                ))}
+              </Grid>
             </div>
           )}
-
           {carRentals.length > 0 && (
             <div className="mt-4">
               <h3>Car Rentals</h3>

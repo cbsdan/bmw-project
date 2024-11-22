@@ -6,7 +6,7 @@ import { succesMsg } from "../../../utils/helper";
 import { getToken } from "../../../utils/helper";
 import Sidebar from "../Sidebar";
 import CarouselLayout from "../../layout/CarouselLayout";
-
+import { Link } from "react-router-dom";
 const ReviewList = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ const ReviewList = () => {
             {reviews.map((review) => (
               <tr key={review._id}>
                 <td>{review._id}</td>
-                <td>{`${review.rental.car.model} ${review.rental.car.brand}`}</td>
+                <td><Link to={`/car/info/${review.rental.car._id}`}>{`${review.rental.car.model} ${review.rental.car.brand}`}</Link></td>
                 <td>{`${review.renter.firstName} ${review.renter.lastName}`}</td>
                 <td>{review.rating}</td>
                 <td>{review.comment}</td>
