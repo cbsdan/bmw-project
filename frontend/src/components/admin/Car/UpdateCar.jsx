@@ -81,7 +81,7 @@ const UpdateCar = () => {
             const { data } = await axios.put(`http://localhost:4000/api/v1/Cars/${id}`, carData, config);
             setIsUpdated(data.success);
             toast.success('Car updated successfully!', {position: "bottom-right"})
-            navigate("/")
+            navigate("/admin/cars")
         } catch (error) {
             setUpdateError(error.response.data.message);
             const { message, error: errorDetails } = error.response.data;
@@ -135,7 +135,6 @@ const UpdateCar = () => {
         formData.set('description', description);
         formData.set('termsAndConditions', termsAndConditions);
         formData.set('pickUpLocation', pickUpLocation);
-        formData.set('owner', owner);
         images.forEach((image) => {
             formData.append('images', image);
         });
@@ -359,18 +358,6 @@ const UpdateCar = () => {
                             placeholder="Pick Up Location"
                             value={pickUpLocation} 
                             onChange={(e) => setPickUpLocation(e.target.value)}
-                            style={styles.input}
-                        />
-                    </div>
-
-                    <div style={styles.formGroup}>
-                        <label>Owner:</label>
-                        <input
-                            type="text"
-                            name="owner"
-                            placeholder="Owner"
-                            value={owner}  // fixed to use 'owner' state
-                            onChange={(e) => setOwner(e.target.value)} // fixed to update 'owner'
                             style={styles.input}
                         />
                     </div>

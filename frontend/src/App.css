@@ -139,6 +139,18 @@ main#home h1 {
     object-fit: cover;  
     height: 350px;  
 }
+
+.confirmationDialog {
+    width: 100%;
+    max-width: 700px;
+    height: 100%;
+    max-height: 65vh;
+    
+}
+
+.max-height-75vh {
+    max-height: 75vh;
+}
 @keyframes pulse {
     0% {
         opacity: 1;

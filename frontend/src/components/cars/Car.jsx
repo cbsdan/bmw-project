@@ -6,17 +6,33 @@ import LoadingSpinner from "../layout/LoadingSpinner";
 import TextField from "@mui/material/TextField";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Typography } from "@mui/material";
-import Alert from "../layout/Alert";
-import { toast } from "react-toastify";
-import { getUser, getToken } from "../../utils/helper";
 import { Table } from "react-bootstrap";
 import { Carousel } from "react-bootstrap";
+import {
+  Typography,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Box,
+  Grid,
+  CardContent,
+  CardMedia,
+  Rating,
+} from "@mui/material";
+
+import Alert from "../layout/Alert";
+import { toast } from "react-toastify";
+import {
+  getUser,
+  getToken,
+  calculateRentalDays,
+  errMsg,
+} from "../../utils/helper";
 
 const Car = () => {
   const { id: carId } = useParams();
@@ -31,6 +47,10 @@ const Car = () => {
   const [openDialog, setOpenDialog] = useState(false);
 
   const [carRentals, setCarRentals] = useState([]);
+
+  const [rentalDays, setRentalDays] = useState(null);
+  const [paymentMode, setPaymentMode] = useState("");
+  const [carRating, setCarRating] = useState([]);
 
   let navigate = useNavigate();
 
@@ -49,15 +69,33 @@ const Car = () => {
     setDiscountCode(event.target.value);
   };
 
-  // Dialog open/close handlers
+  const handleChange = (event) => {
+    setPaymentMode(event.target.value);
+  };
+
   const handleDialogOpen = () => {
-    if (!pickupDate || !returnDate) {
-      toast.error("Please enter the pickup and return date!", {
-        position: "bottom-right",
-      });
-      return;
+    try {
+      if (!pickupDate || !returnDate) {
+        toast.error("Please enter the pickup and return date!", {
+          position: "bottom-right",
+        });
+        return;
+      }
+      if (paymentMode == "") {
+        toast.error("Please enter the mode of payment.", {
+          position: "bottom-right",
+        });
+        return;
+      }
+      const days = calculateRentalDays(pickupDate, returnDate);
+      setRentalDays(days);
+      console.log(days);
+
+      setOpenDialog(true);
+    } catch (error) {
+      errMsg(error.message);
+      console.log(message);
     }
-    setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
@@ -120,6 +158,25 @@ const Car = () => {
     }
   };
 
+  const fetchCarRating = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      };
+      const response = await axios.get(
+        `${import.meta.env.VITE_API}/car/reviews/${carId}`,
+        config
+      );
+      console.log(response);
+      setCarRating(response.data.reviews);
+      console.log(response.data.reviews);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchCarData = async () => {
       setLoading(true);
@@ -138,6 +195,7 @@ const Car = () => {
 
     fetchCarData();
     fetchCarRentals();
+    fetchCarRating();
   }, [carId]);
 
   let isCarOnRental = false;
@@ -230,9 +288,7 @@ const Car = () => {
                     carData.owner._id == getUser()._id ? (
                       <h3>You cannot book your own car</h3>
                     ) : isCarOnRental ? (
-                      <h3>
-                        This car is currently on rental. Cannot Book Now.
-                      </h3>
+                      <h3>This car is currently on rental. Cannot Book Now.</h3>
                     ) : (
                       <>
                         <h2>Book Now:</h2>
@@ -264,6 +320,25 @@ const Car = () => {
                               variant="outlined"
                               fullWidth
                             />
+                            <InputLabel id="payment-mode-label">
+                              Mode of Payment
+                            </InputLabel>
+                            <Select
+                              labelId="payment-mode-label"
+                              id="payment-mode"
+                              value={paymentMode}
+                              onChange={handleChange}
+                              label="Mode of Payment"
+                            >
+                              <MenuItem value="">
+                                <em>None</em>
+                              </MenuItem>
+                              <MenuItem value="Credit Card">
+                                Credit Card
+                              </MenuItem>
+                              <MenuItem value="GCash">GCash</MenuItem>
+                              <MenuItem value="Cash">Cash</MenuItem>
+                            </Select>
                             <Button
                               variant="contained"
                               color="primary"
@@ -286,6 +361,61 @@ const Car = () => {
               </div>
             </Card.Body>
           </Card>
+          {carRating.length > 0 && (
+            <div className="mt-4">
+              <h3>Car Rating</h3>
+              <Grid container spacing={4}>
+  {carRating.map((rating, index) => (
+    <Grid container item xs={12} md={6} lg={12} key={index} spacing={2}>
+      {/* Rating Content */}
+      <Grid item xs={12} lg={8} md={6}>
+        <Card variant="outlined" sx={{ boxShadow: 'none' }}>
+          <CardContent>
+            <Typography variant="h6" component="div">
+              {rating.renter.firstName} ***
+            </Typography>
+            <Typography variant="body1">
+              Rating:{" "}
+              <Rating value={rating.rating} precision={0.5} readOnly />
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              {rating.comment}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Date Created:{" "}
+              {new Date(rating.createdAt).toLocaleDateString()}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Image Content */}
+      <Grid item xs={12} lg={4} md={6}>
+        {rating.images && rating.images.length > 0 && (
+          <Card variant="outlined" sx={{ boxShadow: 'none' }}>
+            <Carousel>
+              {rating.images.map((image, idx) => (
+                <Carousel.Item key={idx}>
+                  <CardMedia
+                    component="img"
+                    alt={`Review Image ${idx + 1}`}
+                    height="140"
+                    image={image.url}
+                    title={`Review Image ${idx + 1}`}
+                  />
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Card>
+        )}
+      </Grid>
+    </Grid>
+  ))}
+</Grid>
+
+            </div>
+          )}
+
           {carRentals.length > 0 && (
             <div className="mt-4">
               <h3>Car Rentals</h3>
@@ -313,14 +443,37 @@ const Car = () => {
               </Table>
             </div>
           )}
-          {/* Confirmation Dialog */}
-          <Dialog open={openDialog} onClose={handleDialogClose}>
-            <DialogTitle>Confirm Your Booking</DialogTitle>
-            <DialogContent>
-              <Typography variant="body1">
+
+          <Dialog
+            open={openDialog}
+            onClose={handleDialogClose}
+            fullWidth={true}
+            maxWidth="lg"
+          >
+            <DialogTitle className="w-100 text-center fs-4 fw-bold">
+              Confirm Your Booking
+            </DialogTitle>
+            <DialogContent className="w-100">
+              <Typography variant="h6">
                 <strong>Car:</strong> {carData.brand} {carData.model} (
                 {carData.year})
               </Typography>
+              <Typography variant="body2">
+                <strong>Type:</strong> {carData.vehicleType}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Capacity:</strong> {carData.seatCapacity}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Fuel:</strong> {carData.fuel}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Transmission:</strong> {carData.transmission}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Fuel:</strong> {carData.fuel}
+              </Typography>
+              <hr />
               <Typography variant="body1">
                 <strong>Pick-up Date:</strong> {pickupDate?.toLocaleString()}
               </Typography>
@@ -328,7 +481,31 @@ const Car = () => {
                 <strong>Return Date:</strong> {returnDate?.toLocaleString()}
               </Typography>
               <Typography variant="body1">
-                <strong>Price Per Day:</strong> ${carData.pricePerDay}
+                <strong>Price Per Day:</strong> ₱{carData.pricePerDay}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Rental Day/s:</strong> {rentalDays}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Payment:</strong> ₱{rentalDays * carData.pricePerDay}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Mode of Payment:</strong> {paymentMode || "GCash"}
+              </Typography>
+              <hr />
+              <Typography variant="body1">
+                <strong>Owner:</strong> {carData.owner.firstName}{" "}
+                {carData.owner.lastName}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Owner Email Address:</strong> {carData.owner.email}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Pick Up Location:</strong> {carData.pickUpLocation}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Terms and Condition:</strong>{" "}
+                {carData.termsAndConditions}
               </Typography>
             </DialogContent>
             <DialogActions>

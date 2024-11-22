@@ -1,4 +1,5 @@
 const Rental = require("../models/Rental");
+const Review = require("../models/Review");
 
 const isCarOnRental = async (carId) => {
   try {
@@ -95,6 +96,7 @@ const myRentals = async (req, res) => {
   try {
     const { renterId } = req.params;
 
+    // Fetch rentals first
     const rentals = await Rental.find({ renter: renterId })
       .populate({
         path: "car",
@@ -109,7 +111,30 @@ const myRentals = async (req, res) => {
         .json({ message: "No rentals found for this user" });
     }
 
-    res.json(rentals);
+    // Fetch reviews only for this renter and the rental's ID
+    const rentalsWithReviews = await Promise.all(
+      rentals.map(async (rental) => {
+        // Fetch reviews where renter matches and rental ID matches
+        const reviews = await Review.find({
+          rental: rental._id,
+          renter: renterId,
+        });
+
+        // Calculate the average rating if reviews exist
+        const averageRating = reviews.length
+          ? reviews.reduce((sum, review) => sum + review.rating, 0) /
+            reviews.length
+          : null;
+
+        return {
+          ...rental.toObject(),
+          reviews, // Include reviews for each rental
+          averageRating, // Add average rating
+        };
+      })
+    );
+
+    res.json(rentalsWithReviews);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error retrieving rentals", error });
@@ -117,36 +142,37 @@ const myRentals = async (req, res) => {
 };
 
 const myCarRental = async (req, res) => {
-    try {
-      const { ownerId } = req.params;
-  
-      const rentals = await Rental.find()
-        .populate({
-          path: 'car',
-          match: { owner: ownerId }, 
-          populate: {
-            path: 'owner',
-          },
-        })
-        .populate('renter')
-        .populate('discountCode')
-        .sort({ createdAt: -1 });
-  
-      const filteredRentals = rentals.filter(
-        (rental) => rental.car && rental.car.owner
-      );
-  
-      if (filteredRentals.length === 0) {
-        return res.status(200).json({ message: "No rentals found for this user" });
-      }
-  
-      res.json(filteredRentals);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error retrieving rentals", error });
+  try {
+    const { ownerId } = req.params;
+
+    const rentals = await Rental.find()
+      .populate({
+        path: "car",
+        match: { owner: ownerId },
+        populate: {
+          path: "owner",
+        },
+      })
+      .populate("renter")
+      .populate("discountCode")
+      .sort({ createdAt: -1 });
+
+    const filteredRentals = rentals.filter(
+      (rental) => rental.car && rental.car.owner
+    );
+
+    if (filteredRentals.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No rentals found for this user" });
     }
-  };
-  
+
+    res.json(filteredRentals);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving rentals", error });
+  }
+};
 
 const getRentDetails = async (req, res) => {
   try {

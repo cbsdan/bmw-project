@@ -182,6 +182,8 @@ const MyCars = () => {
   return (
     <div className="container py-3">
         {error ? (<Alert message={error} type="error" />) : (<></>) }
+        <h1>My Cars</h1>
+        <hr />
       <Button variant="primary" onClick={handleShow}>
         Add Car
       </Button>

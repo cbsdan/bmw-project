@@ -1,71 +1,102 @@
-const Review = require('../models/Review');
-const Rental = require('../models/Rental'); 
+const Review = require("../models/Review");
+const Rental = require("../models/Rental");
+const cloudinary = require("cloudinary").v2;
 
 const getAllReview = async (req, res) => {
   try {
-    const reviews = await Review.find().populate('renter rental');
-    res.status(200).json({message: "Fetched reviews successfully", reviews});
+    const reviews = await Review.find()
+      .populate({
+        path: "rental",
+        populate: {
+          path: "car",
+        },
+      })
+      .populate("renter")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ message: "Fetched reviews successfully", reviews });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching reviews', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching reviews", error: err.message });
   }
 };
 
 const getReviews = async (req, res) => {
-    try {
-      const { carId } = req.params;
-  
-      const rentals = await Rental.find({ car: carId });
+  try {
+    const { carId } = req.params;
 
-      if (!rentals.length) {
-        return res.status(404).json({ message: 'No rentals found for this car' });
-      }
-  
-      const rentalIds = rentals.map(rental => rental._id);
-      const reviews = await Review.find({ rental: { $in: rentalIds } }).populate('renter rental');
-  
-      res.status(200).json({ message: "Fetched reviews successfully", reviews });
-    } catch (err) {
-      res.status(500).json({ message: 'Error fetching reviews', error: err.message });
+    const rentals = await Rental.find({ car: carId });
+
+    if (!rentals.length) {
+      return res.status(404).json({ message: "No rentals found for this car" });
     }
-  };
+
+    const rentalIds = rentals.map((rental) => rental._id);
+    const reviews = await Review.find({ rental: { $in: rentalIds } }).populate(
+      "renter rental"
+    );
+
+    res.status(200).json({ message: "Fetched reviews successfully", reviews });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching reviews", error: err.message });
+  }
+};
 
 const getReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const review = await Review.findById(reviewId).populate('renter rental');
-    if (!review) return res.status(404).json({ message: 'Review not found' });
-    res.status(200).json({message: "Fetched review successfully", review});
+    const review = await Review.findById(reviewId)
+      .populate("renter rental")
+      .sort({ createdAt: -1 });
+    if (!review) return res.status(404).json({ message: "Review not found" });
+    res.status(200).json({ message: "Fetched review successfully", review });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching review', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching review", error: err.message });
   }
 };
 
 const createReview = async (req, res) => {
   try {
     const { rental, renter, rating, comment } = req.body;
-    const images = req.files.map(file => ({
-      public_id: file.filename,
-      url: file.path
+    const uploadedImages = await Promise.all(
+      req.files.map((file) =>
+        cloudinary.uploader.upload(file.path, {
+          folder: "reviews",
+          width: 150,
+          crop: "scale",
+        })
+      )
+    );
+    const images = uploadedImages.map((result) => ({
+      public_id: result.public_id,
+      url: result.secure_url,
     }));
-
     const review = new Review({
       rental,
       renter,
       rating,
       comment,
-      images
+      images,
     });
 
     const error = review.validateSync();
     if (error) {
-      const errorsArray = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ errors: errorsArray, message: "Validation Errors" });
+      const errorsArray = Object.values(error.errors).map((err) => err.message);
+      return res
+        .status(400)
+        .json({ errors: errorsArray, message: "Validation Errors" });
     }
 
     await review.save();
-    res.status(201).json({ message: 'Review created successfully', review });
+    res.status(201).json({ message: "Review created successfully", review });
   } catch (err) {
-    res.status(500).json({ message: 'Error creating review', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error creating review", error: err.message });
   }
 };
 
@@ -78,25 +109,54 @@ const updateReview = async (req, res) => {
     if (rating) updates.rating = rating;
     if (comment) updates.comment = comment;
 
+    const review = await Review.findById(reviewId);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    if (review.images && review.images.length > 0) {
+      await Promise.all(
+        review.images.map(async (image) => {
+          await cloudinary.uploader.destroy(image.public_id);
+        })
+      );
+    }
+
     if (req.files) {
-      updates.images = req.files.map(file => ({
-        public_id: file.filename,
-        url: file.path
-      }));
+      const uploadedImages = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: "reviews",
+            public_id: file.filename,
+          });
+          return {
+            public_id: result.public_id,
+            url: result.secure_url,
+          };
+        })
+      );
+      updates.images = uploadedImages;
     }
 
-    const review = await Review.findByIdAndUpdate(reviewId, updates, { new: true });
-    if (!review) return res.status(404).json({ message: 'Review not found' });
+    const updatedReview = await Review.findByIdAndUpdate(reviewId, updates, {
+      new: true,
+    });
+    if (!updatedReview)
+      return res.status(404).json({ message: "Review not found" });
 
-    const error = review.validateSync();
+    const error = updatedReview.validateSync();
     if (error) {
-      const errorsArray = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ errors: errorsArray, message: "Validation Errors" });
+      const errorsArray = Object.values(error.errors).map((err) => err.message);
+      return res
+        .status(400)
+        .json({ errors: errorsArray, message: "Validation Errors" });
     }
 
-    res.status(200).json({ message: 'Review updated successfully', review });
+    res
+      .status(200)
+      .json({ message: "Review updated successfully", review: updatedReview });
   } catch (err) {
-    res.status(500).json({ message: 'Error updating review', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error updating review", error: err.message });
   }
 };
 
@@ -104,11 +164,71 @@ const deleteReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
     const review = await Review.findByIdAndDelete(reviewId);
-    if (!review) return res.status(404).json({ message: 'Review not found' });
+    if (!review) return res.status(404).json({ message: "Review not found" });
 
-    res.status(200).json({ message: 'Review deleted successfully' });
+    res.status(200).json({ message: "Review deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting review', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting review", error: err.message });
+  }
+};
+
+const getReviewsByCarId = async (req, res) => {
+  try {
+    const { carId } = req.params;
+
+    const rentals = await Rental.find({ car: carId });
+
+    if (!rentals.length) {
+      return res.status(404).json({ message: "No rentals found for this car" });
+    }
+
+    const rentalIds = rentals.map((rental) => rental._id);
+
+    const reviews = await Review.find({ rental: { $in: rentalIds } })
+      .populate("renter")
+      .populate({
+        path: "rental",
+        populate: {
+          path: "car",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ message: "Fetched reviews successfully", reviews });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching reviews", error: err.message });
+  }
+};
+
+const getReviewsByRentalId = async (req, res) => {
+  try {
+    const { rentalId } = req.params;
+
+    const reviews = await Review.find({ rental: rentalId })
+      .populate("renter")
+      .populate({
+        path: "rental",
+        populate: {
+          path: "car",
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    if (!reviews.length) {
+      return res
+        .status(404)
+        .json({ message: "No reviews found for this rental" });
+    }
+
+    res.status(200).json({ message: "Fetched reviews successfully", reviews });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching reviews", error: err.message });
   }
 };
 
@@ -118,5 +238,7 @@ module.exports = {
   getReview,
   createReview,
   updateReview,
-  deleteReview
+  deleteReview,
+  getReviewsByCarId,
+  getReviewsByRentalId,
 };

@@ -84,3 +84,14 @@ export const formatDate = (dateStr) => {
     const [datePart, timePart] = formattedDate.split(', ');
     return `${datePart.replace(/\//g, '-')} ${timePart}`;
   };
+
+  export const calculateRentalDays = (pickUpDate, returnDate) => {
+    if (!pickUpDate || !returnDate) {
+      return 0;
+    }
+    const pickUp = new Date(pickUpDate);
+    const returnD = new Date(returnDate);
+    const timeDiff = Math.abs(returnD - pickUp);
+    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return diffDays;
+  };

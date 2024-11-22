@@ -29,6 +29,18 @@ const rentalSchema = new mongoose.Schema({
     required: true,
     default: "Pending",
   },
+  paymentMethod: {
+    type: String,
+    enum: ["GCash", "Cash", "Credit Card"],
+    required: true,
+    default: "GCash"
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["Pending", "Paid", "Refunded"],
+    required: true,
+    default: "Pending"
+  },
   discountCode: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "DiscountCode",

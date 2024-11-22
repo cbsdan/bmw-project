@@ -122,7 +122,8 @@ const MyCarRental = () => {
                       <Button
                         variant="primary"
                         onClick={() => handleViewRental(rental)}
-                      >
+                        disabled={rental.status === "Canceled" || rental.status === "Returned"}
+                        >
                         Update
                       </Button>
                     </td>
@@ -130,7 +131,7 @@ const MyCarRental = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">No rentals found.</td>
+                  <td colSpan="7" className="text-center">No rentals found.</td>
                 </tr>
               )}
             </tbody>

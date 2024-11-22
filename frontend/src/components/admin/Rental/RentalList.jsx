@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Sidebar from '../Sidebar'
 import Swal from 'sweetalert2'
 import { Modal, Button, Form } from 'react-bootstrap'
+import RentalInfoDialog from "../../rental/RentalInfoDialog";
 
 const RentalList = () => {
   const [rentals, setRentals] = useState([])
@@ -17,6 +18,8 @@ const RentalList = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedRental, setSelectedRental] = useState(null)
   const [newStatus, setNewStatus] = useState('')
+  const [openDialog, setOpenDialog] = useState(false);
+
   let navigate = useNavigate()
 
   const getRentals = async () => {
@@ -34,6 +37,11 @@ const RentalList = () => {
     }
   }
 
+  const handleViewRental = (rental) =>{
+    const rentalDays = formatDate(new Date(rental.pickUpDate), new Date(rental.returnDate));
+    setSelectedRental({ ...rental, rentalDays });
+    setOpenDialog(true);
+  }
   useEffect(() => {
     getRentals()
 
@@ -49,7 +57,17 @@ const RentalList = () => {
       navigate('/')
     }
   }, [])
+  
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+    setSelectedRental(null);
+  };
 
+  const handleConfirmBooking = () => {
+    console.log("Booking confirmed", selectedRental);
+    setOpenDialog(false);
+  };
+  
   const rentalLists = () => {
     const data = {
       columns: [
@@ -109,6 +127,12 @@ const RentalList = () => {
             >
               <i className="fa fa-pencil"></i> Edit Status
             </button>
+            <button
+              className="btn btn-success py-1 px-2"
+              onClick={() => handleViewRental(rental)}
+            >
+              <i className="fa fa-eye"></i> View
+            </button>
           </div>
         )
       })
@@ -163,6 +187,16 @@ const RentalList = () => {
             <MDBDataTable data={rentalLists()} bordered striped hover />
           )}
         </div>
+        {selectedRental && (
+        <RentalInfoDialog
+          open={openDialog}
+          handleClose={handleDialogClose}
+          handleConfirm={handleConfirmBooking }
+          rentalData={selectedRental}
+          rentalDays={selectedRental.rentalDays}
+          paymentMode={selectedRental.paymentMode}
+        />
+      )}
       </div>
 
       {/* Status Update Modal */}

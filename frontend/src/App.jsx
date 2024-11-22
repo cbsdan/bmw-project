@@ -20,6 +20,7 @@ import RentalList from './components/admin/Rental/RentalList'
 import MyRentals from './components/user/MyRentals'
 import MyCars from './components/user/MyCars'
 import MyCarRental from './components/user/MyCarRental'
+import ReviewList from './components/admin/Review/ReviewList'
 
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="/update-car/:id" element={<UpdateCar />} />
 
             <Route path="/rentals" element={<RentalList />} />
+            <Route path="/reviews" element={<ReviewList />} />
         </Routes>
     );
   };
