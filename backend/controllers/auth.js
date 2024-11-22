@@ -7,47 +7,49 @@ exports.registerUser = async (req, res, next) => {
     try {
         console.log(`Request Body: ${JSON.stringify(req.body)},\nRequest file: ${JSON.stringify(req.file)}`);
 
-        const { firstName, lastName, email, password } = req.body;
+        const { uid, firstName, lastName, email } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
                 success: false,
-                message: 'Email already exists', 
+                message: 'Email already exists',
                 errors: ["Email already exists"]
             });
         }
 
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please upload an avatar image'
-            });
-        }
+        let avatar = {
+            public_id: null,
+            url: null
+        };
 
-        const fileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        if (!fileTypes.includes(req.file.mimetype)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Unsupported file type! Please upload a JPEG, JPG, or PNG image.'
-            });
-        }
+        if (req.file) {
+            const fileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!fileTypes.includes(req.file.mimetype)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Unsupported file type! Please upload a JPEG, JPG, or PNG image.'
+                });
+            }
 
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'avatars',
-            width: 150,
-            crop: "scale"
-        });
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'avatars',
+                width: 150,
+                crop: "scale"
+            });
+
+            avatar = {
+                public_id: result.public_id,
+                url: result.secure_url
+            };
+        }
 
         const user = new User({
+            uid,
             firstName,
             lastName,
             email,
-            password,
-            avatar: {
-                public_id: result.public_id,
-                url: result.secure_url
-            }
+            avatar
         });
 
         const validationError = user.validateSync();
@@ -66,7 +68,7 @@ exports.registerUser = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message: 'Your registration is successful!', 
+            message: 'Your registration is successful!',
             user,
             token
         });
@@ -81,38 +83,33 @@ exports.registerUser = async (req, res, next) => {
 };
 
 
+
 exports.loginUser = async (req, res, next) => {
-    const { email, password } = req.body;
+    const { uid } = req.body;  
     
     console.log(req.body);
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Please enter email & password' });
+    if (!uid) {
+        return res.status(400).json({ message: 'Please provide UID' });
     }
 
     try {
-        let user = await User.findOne({ email }).select('+password');
+        let user = await User.findOne({ uid });
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid Email' });
+            return res.status(404).json({ message: 'User not found' });
         }
-
-        const isPasswordMatched = await user.comparePassword(password);
-        if (!isPasswordMatched) {
-            return res.status(401).json({ message: 'Wrong Password' });
-        }
-
-        const token = user.getJwtToken();
 
         return res.status(200).json({
             success: true,
+            message: 'Login successful',
             user,
-            token,
         });
     } catch (error) {
         console.error(error); 
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
 
 exports.getAllUsers = async (req, res) => {
     try {

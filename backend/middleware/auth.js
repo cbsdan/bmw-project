@@ -1,5 +1,6 @@
 const User = require('../models/User');
-const jwt = require("jsonwebtoken");
+const admin = require("../config/firebase-admin")
+
 
 const getUserFromToken = async (req) => {
     const authHeader = req.header('Authorization');
@@ -14,15 +15,27 @@ const getUserFromToken = async (req) => {
         throw new Error('Token is missing. Login first to access this resource.');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    try {
+        console.log('Verifying token:', token);  
 
-    if (!user) {
-        throw new Error('User not found. Login first to access this resource.');
+        const decodedToken = await admin.auth().verifyIdToken(token); 
+        const uid = decodedToken.uid; 
+
+        console.log('Decoded token:', decodedToken); 
+
+        const user = await User.findOne({ uid });
+
+        if (!user) {
+            throw new Error('User not found. Login first to access this resource.');
+        }
+
+        return user;  
+    } catch (error) {
+        console.error('Error verifying token or fetching user:', error);  
+        throw new Error('Invalid token or token verification failed');
     }
-
-    return user;
 };
+
 
 exports.isAuthenticatedUser = async (req, res, next) => {
     try {
