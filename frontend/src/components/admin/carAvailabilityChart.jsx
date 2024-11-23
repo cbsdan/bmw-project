@@ -17,7 +17,7 @@ export default function CarAvailabilityChart() {
             const config = {
                 headers: { 'Authorization': `Bearer ${getToken()}` }
             };
-            const { data } = await axios.get(`http://localhost:4000/api/v1/car-availability`, config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API}/car-availability`, config);
             setCarAvailability(data.availability);
             setLoading(false);
         } catch (error) {

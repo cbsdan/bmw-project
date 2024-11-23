@@ -26,7 +26,7 @@ const CreateCar = () => {
     });
 
     try {
-      await axios.post("http://localhost:4000/api/v1/CreateCar", data, {
+      await axios.post(`${import.meta.env.VITE_API}/CreateCar`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${getToken()}`,

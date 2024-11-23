@@ -30,7 +30,7 @@ const CarFormModal = ({ show, handleClose, operation, carId }) => {
     });
 
     try {
-      await axios.post("http://localhost:4000/api/v1/CreateCar", data, {
+      await axios.post(`${import.meta.env.VITE_API}/CreateCar`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${getToken()}`,
@@ -64,7 +64,7 @@ const CarFormModal = ({ show, handleClose, operation, carId }) => {
     }
 
     try {
-      await axios.put(`http://localhost:4000/api/v1/Cars/${carId}`, data, {
+      await axios.put(`${import.meta.env.VITE_API}/Cars/${carId}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${getToken()}`,

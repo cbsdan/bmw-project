@@ -242,7 +242,7 @@ const Home = () => {
       };
       const user = getUser();
       const response = await axios.get(
-        `http://localhost:4000/api/v1/favorite-cars/${user._id}`,
+        `${import.meta.env.VITE_API}/favorite-cars/${user._id}`,
         config
       );
       setFavoriteCars(response.data.favoriteCars);
@@ -266,7 +266,7 @@ const Home = () => {
     try {
       if (favoriteCar) {
         await axios.delete(
-          `http://localhost:4000/api/v1/favorite-car/${favoriteCar._id}`,
+          `${import.meta.env.VITE_API}/favorite-car/${favoriteCar._id}`,
           config
         );
         setFavoriteCars(
@@ -277,7 +277,7 @@ const Home = () => {
         });
       } else {
         const response = await axios.post(
-          "http://localhost:4000/api/v1/favorite-car/",
+          `${import.meta.env.VITE_API}/favorite-car/`,
           {
             user: user._id,
             car: car._id,

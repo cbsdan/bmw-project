@@ -11,11 +11,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
 const Register = () => {
-    const [avatar, setAvatar] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Initial Formik values
     const initialValues = {
         firstName: '',
         lastName: '',
@@ -24,7 +22,6 @@ const Register = () => {
         avatar: null,
     };
 
-    // Validation schema with Yup
     const validationSchema = Yup.object({
         firstName: Yup.string().required('First Name is required'),
         lastName: Yup.string().required('Last Name is required'),

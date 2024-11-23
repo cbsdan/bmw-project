@@ -19,7 +19,7 @@ const FavoriteCars = () => {
                 }
             };
             const user = getUser();
-            const response = await axios.get(`http://localhost:4000/api/v1/favorite-cars/${user._id}`, config);
+            const response = await axios.get(`${import.meta.env.VITE_API}/favorite-cars/${user._id}`, config);
             setFavoriteCars(response.data.favoriteCars);
         } catch (error) {
             console.error('Error fetching favorite cars:', error);
@@ -37,7 +37,7 @@ const FavoriteCars = () => {
                     'Authorization': `Bearer ${getToken()}`
                 }
             };
-            await axios.delete(`http://localhost:4000/api/v1/favorite-car/${favoriteCarId}`, config);
+            await axios.delete(`${import.meta.env.VITE_API}/favorite-car/${favoriteCarId}`, config);
             setFavoriteCars(favoriteCars.filter(favCar => favCar._id !== favoriteCarId));
             toast.success('Favorite car removed successfully', { position: "bottom-right" });
         } catch (error) {

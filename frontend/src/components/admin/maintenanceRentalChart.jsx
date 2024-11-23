@@ -17,7 +17,7 @@ export default function MaintenanceVsRentalChart() {
                     'Authorization': `Bearer ${getToken()}`,
                 },
             };
-            const response = await axios.get(`http://localhost:4000/api/v1/maintenance-vs-rental`, config);
+            const response = await axios.get(`${import.meta.env.VITE_API}/maintenance-vs-rental`, config);
             setData(response.data);
             setLoading(false);
         } catch (error) {

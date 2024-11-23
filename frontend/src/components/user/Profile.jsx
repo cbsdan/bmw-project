@@ -40,7 +40,7 @@ const [newAvatar, setNewAvatar] = useState("")
         },
       };
 
-      const url = `http://localhost:4000/api/v1/getUserInfo`;
+      const url = `${import.meta.env.VITE_API}/getUserInfo`;
       const { data: response } = await axios.post(
         url,
         { uid: getUser().uid },

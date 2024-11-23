@@ -46,7 +46,7 @@ const UpdateCar = () => {
     }
 
     try {
-      await axios.put(`http://localhost:4000/api/v1/Cars/${id}`, data, {
+      await axios.put(`${import.meta.env.VITE_API}/Cars/${id}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${getToken()}`,

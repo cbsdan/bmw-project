@@ -331,10 +331,8 @@ exports.filterCars = async (req, res) => {
       const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
       console.log("Query Parameters:", req.query);
 
-      // Initialize APIFeatures
       let apiFeatures = new APIFeatures(Cars.find(), req.query).filter().search();
 
-      // Additional filtering for pickUpLocation, brand, transmission, pricePerDay, and year
       if (pickUpLocation) {
         apiFeatures.query = apiFeatures.query.find({
           pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
@@ -364,7 +362,6 @@ exports.filterCars = async (req, res) => {
         console.log("Filter Applied for year <=:", year);
       }
 
-      // Aggregation for filtering by rating
       let aggregatePipeline = [
         { 
           $match: apiFeatures.query._conditions 
@@ -403,10 +400,8 @@ exports.filterCars = async (req, res) => {
         console.log("Filter Applied for rating >=:", rating);
       }
 
-      // Run the aggregation
       const cars = await Cars.aggregate(aggregatePipeline);
 
-      // Log the data after aggregation to verify the joins
       console.log("Cars after aggregation:", cars);
 
       const carsWithImages = cars.map((car) => {

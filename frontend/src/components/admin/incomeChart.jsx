@@ -18,7 +18,7 @@ export default function MonthlyIncomeChart() {
                 },
             };
 
-            const { data } = await axios.get(`http://localhost:4000/api/v1/estimated-income`, config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API}/estimated-income`, config);
 
             const monthlyIncome = data.reduce((acc, item) => {
                 acc[item.month] = item.estimatedIncome;
