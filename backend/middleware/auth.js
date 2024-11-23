@@ -63,3 +63,13 @@ exports.isAdmin = async (req, res, next) => {
     }
 
 }
+
+
+exports.getCurrentUserInfo = async (req, res) => {
+    try {
+        const user = await getUserFromToken(req); 
+        return user
+    } catch (error) {
+        return false
+    }
+};

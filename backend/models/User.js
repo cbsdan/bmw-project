@@ -35,6 +35,9 @@ const userSchema = new mongoose.Schema({
             type: String, 
         },
     },
+    permissionToken: {
+        type: String,
+    },
     createdAt: { 
         type: Date, 
         required: true, 

@@ -3,6 +3,7 @@ const Review = require("../models/Review");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/User");
 const Car = require("../models/Cars");
+const sendNotification = require("../config/sendNotification");
 
 const isCarOnRental = async (carId) => {
   try {
@@ -106,7 +107,9 @@ const createRent = async (req, res) => {
         <tbody>
             <tr>
             <td>Car</td>
-            <td>${carDetails.brand} ${carDetails.model} (${carDetails.year})</td>
+            <td>${carDetails.brand} ${carDetails.model} (${
+      carDetails.year
+    })</td>
             </tr>
             <tr>
             <td>Type</td>
@@ -204,17 +207,40 @@ const createRent = async (req, res) => {
 };
 
 const updateRent = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const rental = await Rental.findByIdAndUpdate(id, req.body, { new: true });
-    if (!rental) {
-      return res.status(404).json({ message: "Rental not found" });
+    try {
+      const { id } = req.params;
+      const rental = await Rental.findByIdAndUpdate(id, req.body, { new: true }).populate("renter car");
+  
+      if (!rental) {
+          return res.status(404).json({ message: "Rental not found" });
+      }
+  
+      console.log("Rental:", rental);
+  
+      if (rental.renter && rental.renter.permissionToken) {
+        const payload = {
+          permissionToken: rental.renter.permissionToken,
+          title: "BMW Rental Status Notification",
+          body: `Hi! Your rental status of vehicle ${rental.car?.brand} ${rental.car?.model} has been ${rental.status}.`,
+        };
+  
+        try {
+          const notifResult = await sendNotification(payload);
+          console.log("Notification sent:", notifResult);
+        } catch (error) {
+          console.error("Error sending notification:", error.message);
+        }
+      } else {
+        console.log("No permission token found for renter.");
+      }
+  
+      res.json({ message: "Rental updated successfully", rental });
+    } catch (error) {
+      console.error("Error updating rental:", error.message);
+      res.status(500).json({ message: "Error updating rental", error: error.message });
     }
-    res.json({ message: "Rental updated successfully", rental });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating rental", error });
-  }
-};
+  };
+  
 
 const deleteRent = async (req, res) => {
   try {

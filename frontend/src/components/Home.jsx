@@ -71,7 +71,7 @@ const Home = () => {
   const fetchTotalPages = async () => {
     try {
       const response = await fetch(
-        `http://localhost:4000/api/v1/Cars/total-pages`
+        `${import.meta.env.VITE_API}/Cars/total-pages`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch total pages");
@@ -91,7 +91,7 @@ const Home = () => {
 
       const response = await fetch(
         // Set loading state after the delay
-        `http://localhost:4000/api/v1/Cars/infinite?page=${page}&resPerPage=10`
+        `${import.meta.env.VITE_API}/Cars/infinite?page=${page}&resPerPage=10`
       );
       if (!response.ok) throw new Error("Failed to fetch cars");
 
@@ -126,7 +126,7 @@ const Home = () => {
       ).toString();
       console.log(query);
       const response = await fetch(
-        `http://localhost:4000/api/v1/Cars/filter?${query}`,
+        `${import.meta.env.VITE_API}/Cars/filter?${query}`,
         {
           method: "GET",
           headers: {

@@ -11,7 +11,8 @@ const {
     updateMyProfile,
     updateUser,
     updateUserAvatar,
-    updateUserPassword
+    updateUserPassword,
+    deletePermissionToken
 } = require('../controllers/auth');
 
 
@@ -20,7 +21,7 @@ const {
     getUserInfo,
     getAllUserInfo,
     updateUserInfo,
-    deleteUserInfo
+    deleteUserInfo,
 } = require('../controllers/userInfoController');
 
 
@@ -29,6 +30,8 @@ router.post('/getUserInfo', getUser);
 router.get('/admin/all-users', isAdmin, getAllUsers);
 router.get('/admin/user/:id', isAdmin, getUserDetails);
 router.put('/update-profile/:id', upload.single('avatar'), isAuthenticatedUser, updateMyProfile);
+router.put('/update-user/:id', isAuthenticatedUser, updateUser);
+router.put('/remove-permission-token/:userId', deletePermissionToken);
 router.put('/admin/update-user/:id', isAdmin, updateUser);
 router.put('/admin/update-avatar/:id', upload.single('avatar'), updateUserAvatar);
 router.put('/admin/update-password/:id', updateUserPassword);
