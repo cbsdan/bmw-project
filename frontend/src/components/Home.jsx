@@ -27,17 +27,30 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [totalPages, setTotalPages] = useState();
   const firstFetchDone = useRef(false);
-  const handleRatingChange = (newRating) => {
-    // Update the rating state with the clicked star's value
-    setRating(newRating);
-  };
+
   const [formData, setFormData] = useState({
     transmission: "",
-    model: "",
+    pickUpLocation: "",
     brand: "",
     pricePerDay: "",
     year: "",
+    rating: "",
   });
+
+  const handleRatingChange = (newRating) => {
+    if (newRating === rating) {
+      formData.rating = "";
+      setRating(0)
+    } else {
+      formData.rating = newRating;
+
+      setRating(newRating);
+    }
+
+    const abortController = new AbortController();
+
+    fetchFilteredCars(abortController.signal);
+  };
   const [typingTimer, setTypingTimer] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -104,13 +117,14 @@ const Home = () => {
   };
 
   const fetchFilteredCars = async (signal) => {
+    console.log(formData)
     try {
       setIsLoading(true);
 
       const query = new URLSearchParams(
         Object.fromEntries(Object.entries(formData).filter(([_, v]) => v))
       ).toString();
-
+      console.log(query);
       const response = await fetch(
         `http://localhost:4000/api/v1/Cars/filter?${query}`,
         {
@@ -122,7 +136,7 @@ const Home = () => {
         }
       );
 
-      console.log(response)
+      console.log(response);
       if (!response.ok) {
         throw new Error("Failed to fetch filtered cars");
       }
@@ -134,7 +148,7 @@ const Home = () => {
         setCars(data.cars);
       }
     } catch (error) {
-        console.log(error)
+      console.log(error);
       if (error.name !== "AbortError") {
         console.error("Error fetching filtered cars:", error);
       }
@@ -184,16 +198,16 @@ const Home = () => {
     let timeout;
     const handleScrollDebounced = () => {
       if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(handleScroll, 200); 
+      timeout = setTimeout(handleScroll, 200);
     };
 
     window.addEventListener("scroll", handleScrollDebounced);
 
     return () => {
       window.removeEventListener("scroll", handleScrollDebounced);
-      if (timeout) clearTimeout(timeout); 
+      if (timeout) clearTimeout(timeout);
     };
-  }, [currentPage, isLoading, totalPages, hasMore]);
+  }, [currentPage, isLoading, totalPages, hasMore, rating]);
 
   useEffect(() => {
     if (typingTimer) clearTimeout(typingTimer);
@@ -203,13 +217,13 @@ const Home = () => {
 
     if (isQueryEmpty && !firstFetchDone.current) {
       setCars([]);
-      firstFetchDone.current = true; 
-      fetchAllCars(1); 
+      firstFetchDone.current = true;
+      fetchAllCars(1);
     }
     if (!isQueryEmpty) {
       firstFetchDone.current = false;
       const newTypingTimer = setTimeout(() => {
-        fetchFilteredCars(signal); 
+        fetchFilteredCars(signal);
       }, doneTypingInterval);
       setTypingTimer(newTypingTimer);
     }
@@ -281,26 +295,6 @@ const Home = () => {
     }
   };
 
-  const deleteCar = async (carId, model) => {
-    setLoading(true);
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      };
-      await axios.delete(`http://localhost:4000/api/v1/Cars/${carId}`, config);
-      setCars(cars.filter((car) => car._id !== carId));
-      toast.success(`${model} has been deleted`, { position: "bottom-right" });
-    } catch (error) {
-      console.error("Error deleting car:", error);
-      toast.error("Error deleting car.", { position: "bottom-right" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const isFavorite = (carId) => {
     return favoriteCars.some((favCar) => favCar.car._id === carId);
   };
@@ -315,7 +309,9 @@ const Home = () => {
 
         <section className="section get-start" id="get-start">
           <div className="container">
-            <h2 className="h2 section-title">Get started with 4 simple steps</h2>
+            <h2 className="h2 section-title">
+              Get started with 4 simple steps
+            </h2>
             <ul className="get-start-list">
               <li>
                 <div className="get-start-card">
@@ -332,7 +328,7 @@ const Home = () => {
                   </p>
 
                   <Link to="/register" className="card-link">
-                      Get started
+                    Get started
                   </Link>
                 </div>
               </li>
@@ -461,7 +457,7 @@ const Home = () => {
                 <section className="section blog" id="blog">
                   <Container>
                     <Typography variant="h2" sx={{ marginBottom: "2rem" }}>
-                      Transaction Reviews
+                      BMW News
                     </Typography>
 
                     <Grid container spacing={4}>
@@ -544,32 +540,15 @@ const Home = () => {
             </Typography>
             <form className="hero-form">
               <div className="input-wrapper">
-                <label htmlFor="transmission-type" className="input-label">
-                  Transmission
-                </label>
-                <select
-                  name="transmission"
-                  id="transmission-type"
-                  className="input-field"
-                  value={formData.transmission}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Transmission</option>
-                  <option value="Manual">Manual</option>
-                  <option value="Automatic">Automatic</option>
-                </select>
-              </div>
-
-              <div className="input-wrapper">
-                <label htmlFor="model" className="input-label">
-                  Model
+                <label htmlFor="pickUpLocation" className="input-label">
+                  Pick Up Location
                 </label>
                 <input
                   type="text"
-                  name="model"
-                  id="model"
+                  name="pickUpLocation"
+                  id="pickUpLocation"
                   className="input-field"
-                  placeholder="Put a Car Model"
+                  placeholder="Put a Location"
                   value={formData.model}
                   onChange={handleInputChange}
                 />
@@ -617,13 +596,31 @@ const Home = () => {
                 />
               </div>
               <div className="input-wrapper">
+                <label htmlFor="transmission-type" className="input-label">
+                  Transmission
+                </label>
+                <select
+                  name="transmission"
+                  id="transmission-type"
+                  className="input-field"
+                  value={formData.transmission}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Transmission</option>
+                  <option value="Manual">Manual</option>
+                  <option value="Automatic">Automatic</option>
+                </select>
+              </div>
+              <div className="input-wrapper">
                 <label htmlFor="rating" className="input-label">
                   Rating
                   <div className="rating-wrapper">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <span
                         key={star}
+                        name="rating"
                         className={`star ${rating >= star ? "filled" : ""}`}
+                        value={rating}
                         onClick={() => handleRatingChange(star)}
                       >
                         ★
@@ -776,7 +773,11 @@ const Home = () => {
               <div className="footer-top">
                 <div className="footer-brand">
                   <a href="#" className="logo">
-                    <img src="../../images/logo.png" alt="BMW" className="w-25" />
+                    <img
+                      src="../../images/logo.png"
+                      alt="BMW"
+                      className="w-25"
+                    />
                   </a>
 
                   <p className="footer-text">

@@ -111,7 +111,7 @@ const Car = () => {
         returnDate: returnDate.toISOString().slice(0, 19),
         status: "Pending",
         paymentMethod: paymentMode,
-        paymentStatus: "Paid"
+        paymentStatus: "Paid",
       };
 
       if (discountCode) {
@@ -408,17 +408,21 @@ const Car = () => {
                       {rating.images && rating.images.length > 0 && (
                         <Card variant="outlined" sx={{ boxShadow: "none" }}>
                           <Carousel>
-                            {rating.images.map((image, idx) => (
-                              <Carousel.Item key={idx}>
-                                <CardMedia
-                                  component="img"
-                                  alt={`Review Image ${idx + 1}`}
-                                  height="140"
-                                  image={image.url}
-                                  title={`Review Image ${idx + 1}`}
-                                />
-                              </Carousel.Item>
-                            ))}
+                            {rating.images.length > 0 ? (
+                              rating.images.map((image, idx) => (
+                                <Carousel.Item key={idx}>
+                                  <CardMedia
+                                    component="img"
+                                    alt={`Review Image ${idx + 1}`}
+                                    height="140"
+                                    image={image.url}
+                                    title={`Review Image ${idx + 1}`}
+                                  />
+                                </Carousel.Item>
+                              ))
+                            ) : (
+                              <></>
+                            )}
                           </Carousel>
                         </Card>
                       )}

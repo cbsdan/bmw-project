@@ -150,6 +150,7 @@ const CarRatingDialog = ({
                   value={rating}
                   onChange={(e, newValue) => setRating(newValue)}
                   precision={0.5}
+                  required={true}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -160,6 +161,7 @@ const CarRatingDialog = ({
                   fullWidth
                   multiline
                   rows={4}
+                  required={true}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -170,6 +172,7 @@ const CarRatingDialog = ({
                   onChange={handleImageChange}
                   style={{ display: "none" }}
                   id="image-upload"
+                  required={true}
                 />
                 <label htmlFor="image-upload">
                   <Button variant="contained" component="span">

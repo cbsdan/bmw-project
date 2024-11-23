@@ -49,17 +49,19 @@ const ReviewList = () => {
 
   const handleDelete = (reviewId) => {
     $('#confirmDeleteModal').modal('show');
-  
-    const handleConfirmDelete = async () => {
+    
+    $('#confirmDeleteButton').off('click').on('click', async () => {
       try {
         await axios.delete(`${import.meta.env.VITE_API}/reviews/${reviewId}`, {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
         });
+  
         setReviews((prevReviews) =>
           prevReviews.filter((review) => review._id !== reviewId)
         );
+  
         succesMsg("Successfully deleted a review");
       } catch (error) {
         setError("Error deleting review");
@@ -67,8 +69,8 @@ const ReviewList = () => {
       } finally {
         $('#confirmDeleteModal').modal('hide');
       }
-    };
-  };
+    });
+  };  
 
   if (loading) {
     return <LoadingSpinner message="Loading" />;
@@ -165,7 +167,7 @@ const ReviewList = () => {
               <button
                 type="button"
                 className="btn btn-danger"
-                onClick={() => handleConfirmDelete()}
+                onClick={() => handleConfirm()}
               >
                 Delete
               </button>

@@ -49,7 +49,14 @@ const RentalInfoDialog = ({ open, handleClose, handleConfirm, rentalData, paymen
         </Typography>
         <hr />
         <Typography variant="body1">
-          <strong>Owner:</strong> {carData.owner.firstName} {carData.owner.lastName}
+          <strong>Renter:</strong> {rentalData.renter?.firstName} {rentalData.renter?.lastName}
+        </Typography>
+        <Typography variant="body1">
+          <strong>Owner Email Address:</strong> {rentalData.renter?.email}
+        </Typography>
+        <hr />
+        <Typography variant="body1">
+          <strong>Owner:</strong> {carData.owner?.firstName} {carData.owner?.lastName}
         </Typography>
         <Typography variant="body1">
           <strong>Owner Email Address:</strong> {carData.owner.email}

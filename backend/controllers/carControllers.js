@@ -3,6 +3,7 @@ const cloudinary = require("cloudinary");
 const Rental = require("../models/Rental");
 const FavoriteCar = require("../models/FavoriteCar");
 const APIFeatures = require("../utils/apiFeatures");
+const Reviews = require('../models/Review');
 
 exports.createCar = async (req, res) => {
   try {
@@ -326,64 +327,110 @@ exports.getAllCarsInfinite = async (req, res) => {
 };
 
 exports.filterCars = async (req, res) => {
-  try {
-    const { model, pricePerDay, year, brand, transmission } = req.query;
-    console.log("Query Parameters:", req.query);
-    let apiFeatures = new APIFeatures(Cars.find(), req.query).filter().search();
+    try {
+      const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
+      console.log("Query Parameters:", req.query);
 
-    if (model) {
-      apiFeatures.query = apiFeatures.query.find({
-        model: { $regex: new RegExp(model, "i") },
+      // Initialize APIFeatures
+      let apiFeatures = new APIFeatures(Cars.find(), req.query).filter().search();
+
+      // Additional filtering for pickUpLocation, brand, transmission, pricePerDay, and year
+      if (pickUpLocation) {
+        apiFeatures.query = apiFeatures.query.find({
+          pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
+        });
+        console.log("Filter Applied for pickUpLocation:", pickUpLocation);
+      }
+      if (brand) {
+        apiFeatures.query = apiFeatures.query.find({
+          brand: { $regex: new RegExp(brand, "i") },
+        });
+        console.log("Filter Applied for brand:", brand);
+      }
+      if (transmission) {
+        apiFeatures.query = apiFeatures.query.find({
+          transmission: { $regex: new RegExp(transmission, "i") },
+        });
+        console.log("Filter Applied for transmission:", transmission);
+      }
+      if (pricePerDay) {
+        apiFeatures.query = apiFeatures.query
+          .where("pricePerDay")
+          .lte(Number(pricePerDay));
+        console.log("Filter Applied for pricePerDay:", pricePerDay);
+      }
+      if (year) {
+        apiFeatures.query = apiFeatures.query.where("year").lte(Number(year));
+        console.log("Filter Applied for year <=:", year);
+      }
+
+      // Aggregation for filtering by rating
+      let aggregatePipeline = [
+        { 
+          $match: apiFeatures.query._conditions 
+        },
+        {
+          $lookup: {
+            from: "rentals",
+            localField: "_id",
+            foreignField: "car",
+            as: "rentals",
+          },
+        },
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "rentals._id",
+            foreignField: "rental",
+            as: "reviews",
+          },
+        },
+        {
+          $addFields: {
+            averageRating: { $avg: "$reviews.rating" },
+          },
+        },
+      ];
+
+      console.log("Aggregation Pipeline:", aggregatePipeline);
+
+      if (rating) {
+        aggregatePipeline.push({
+          $match: {
+            averageRating: { $gte: Number(rating) },
+          },
+        });
+        console.log("Filter Applied for rating >=:", rating);
+      }
+
+      // Run the aggregation
+      const cars = await Cars.aggregate(aggregatePipeline);
+
+      // Log the data after aggregation to verify the joins
+      console.log("Cars after aggregation:", cars);
+
+      const carsWithImages = cars.map((car) => {
+        console.log("Car with joined rentals and reviews:", car);
+        return {
+          ...car,
+          images: car.images.map((image) => image.url),
+        };
       });
-      console.log("Filter Applied for model:", model);
-    }
-    if (brand) {
-      apiFeatures.query = apiFeatures.query.find({
-        brand: { $regex: new RegExp(brand, "i") },
+
+      console.log("Filtered Cars with Images:", carsWithImages);
+
+      res.status(200).json({
+        success: true,
+        count: carsWithImages.length,
+        cars: carsWithImages,
       });
-      console.log("Filter Applied for model:", brand);
-    }
-    if (transmission) {
-      apiFeatures.query = apiFeatures.query.find({
-        transmission: { $regex: new RegExp(transmission, "i") },
+    } catch (error) {
+      console.error("Error:", error.message);
+
+      res.status(500).json({
+        success: false,
+        message: error.message,
       });
-      console.log("Filter Applied for model:", transmission);
     }
-    if (pricePerDay) {
-      apiFeatures.query = apiFeatures.query
-        .where("pricePerDay")
-        .equals(Number(pricePerDay));
-      console.log("Filter Applied for pricePerDay:", pricePerDay);
-    }
-    if (year) {
-      apiFeatures.query = apiFeatures.query.where("year").lte(Number(year));
-      console.log("Filter Applied for year <=:", year);
-    }
-
-    console.log("Final API Query:", apiFeatures.query);
-
-    const cars = await apiFeatures.query;
-
-    const carsWithImages = cars.map((car) => {
-      return {
-        ...car.toObject(),
-        images: car.images.map((image) => image.url),
-      };
-    });
-
-    console.log("Filtered Cars with Images:", carsWithImages);
-
-    res.status(200).json({
-      success: true,
-      count: carsWithImages.length,
-      cars: carsWithImages,
-    });
-  } catch (error) {
-    console.error("Error:", error.message);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 };
+
