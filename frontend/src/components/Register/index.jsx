@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import styles from './styles.module.css';
 import axios from 'axios';
 import { errMsg } from '../../utils/helper';
+import SignWithGoogle from '../login/SignWithGoogle';
 
 const Register = () => {
     const [data, setData] = useState({
@@ -140,6 +141,7 @@ const Register = () => {
                             {loading ? 'Loading...' : 'Sign Up'}
                         </button>
                     </form>
+                    <SignWithGoogle method="Sign Up"/>
                 </div>
             </div>
         </div>

@@ -84,7 +84,7 @@ exports.registerUser = async (req, res, next) => {
 
 
 
-exports.loginUser = async (req, res, next) => {
+exports.getUser = async (req, res, next) => {
     const { uid } = req.body;  
     
     console.log(req.body);
@@ -101,7 +101,6 @@ exports.loginUser = async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
-            message: 'Login successful',
             user,
         });
     } catch (error) {
@@ -140,6 +139,62 @@ exports.getUserDetails = async (req, res, next) => {
         user
     })
 }
+exports.updateMyProfile = async (req, res, next) => {
+    try {
+        console.log(`Req.files: ${JSON.stringify(req.file)}`)
+        const newUserData = {};
+
+        if (req.body.firstName) newUserData.firstName = req.body.firstName;
+        if (req.body.lastName) newUserData.lastName = req.body.lastName;
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(400).json({ message: `User not found ${req.params.id}` });
+        }
+
+        if (user.avatar && user.avatar.public_id) {
+            await cloudinary.uploader.destroy(user.avatar.public_id);
+        }
+
+        if (req.file) {
+            const fileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!fileTypes.includes(req.file.mimetype)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Unsupported file type! Please upload a JPEG, JPG, or PNG image.'
+                });
+            }
+            
+            const cloudinaryResponse = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'avatars',
+                width: 150,
+                crop: 'scale',
+            });
+
+            newUserData.avatar = {
+                url: cloudinaryResponse.secure_url,
+                public_id: cloudinaryResponse.public_id,
+            };
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, newUserData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!updatedUser) {
+            return res.status(400).json({ message: `User not updated ${req.params.id}` });
+        }
+
+        return res.status(200).json({
+            success: true,
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+};
 
 exports.updateUser = async (req, res, next) => {
     try {

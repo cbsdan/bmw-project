@@ -5,9 +5,10 @@ const {isAuthenticatedUser, isAdmin} = require("../middleware/auth")
 
 const { 
     registerUser,
-    loginUser,
+    getUser,
     getAllUsers,
     getUserDetails,
+    updateMyProfile,
     updateUser,
     updateUserAvatar,
     updateUserPassword
@@ -24,9 +25,10 @@ const {
 
 
 router.post('/register', upload.single('avatar'), registerUser);
-router.post('/login', loginUser);
+router.post('/getUserInfo', getUser);
 router.get('/admin/all-users', isAdmin, getAllUsers);
 router.get('/admin/user/:id', isAdmin, getUserDetails);
+router.put('/update-profile/:id', upload.single('avatar'), isAuthenticatedUser, updateMyProfile);
 router.put('/admin/update-user/:id', isAdmin, updateUser);
 router.put('/admin/update-avatar/:id', upload.single('avatar'), updateUserAvatar);
 router.put('/admin/update-password/:id', updateUserPassword);

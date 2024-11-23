@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import styles from './styles.module.css';
 import axios from 'axios';
 import {authenticate, errMsg, succesMsg} from '../../utils/helper'
+import SignInwithGoogle from "./SignWithGoogle";
 
 const Login = () => {
     const [data, setData] = useState({
@@ -33,7 +34,7 @@ const Login = () => {
                 }
             }
             
-            const url =`http://localhost:4000/api/v1/login`;
+            const url =`${import.meta.env.VITE_API}/getUserInfo`;
             const {data : response} = await axios.post(url, {uid: result.user.uid}, config);
             console.log(response);
             if (response.success) {
@@ -99,8 +100,7 @@ const Login = () => {
                             {loading ? 'Loading...' : 'Log In'}
 
                         </button>
-                        <p>--------Or--------</p>
-                        <button className={`${styles.green_btn}`}>Login In with Google</button>
+                        <SignInwithGoogle method="Sign In"/>
                     </form>
                 </div>
                 <div className={styles.right}>

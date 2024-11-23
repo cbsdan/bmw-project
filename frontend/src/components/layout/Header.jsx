@@ -67,7 +67,7 @@ const Header = () => {
           {user ? (
             <div className="ml-4 dropdown d-inline d-flex align-items-center">
               <img
-                src={user.avatar && user.avatar.url}
+                src={user.avatar?.url || "./src/assets/images/default-image.jpg"}
                 alt={user && `${user.firstName} ${user.lastName}`}
                 width={45}
                 style={{ height: "45px" }}
@@ -123,9 +123,11 @@ const Header = () => {
                     My Car Rental
                   </Link>
                 )}
-                <Link className="dropdown-item" to="/">
-                  Home
-                </Link>
+                {user && (
+                    <Link className="dropdown-item" to="/my-profile">
+                        My Profile
+                    </Link>
+                )}
               </div>
             </div>
           ) : (

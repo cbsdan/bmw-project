@@ -21,6 +21,7 @@ import MyRentals from './components/user/MyRentals'
 import MyCars from './components/user/MyCars'
 import MyCarRental from './components/user/MyCarRental'
 import ReviewList from './components/admin/Review/ReviewList'
+import Profile from './components/user/Profile'
 
 function App() {
 
@@ -58,6 +59,7 @@ function App() {
     return (
       <Routes>
         <Route path="/favorite-cars" element={<FavoriteCars />} />
+        <Route path="/my-profile" element={<Profile />} />
         <Route path="/my-rentals" element={<MyRentals />} />
         <Route path="/my-cars" element={<MyCars />} />
         <Route path="/my-car-rental" element={<MyCarRental />} />
