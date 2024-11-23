@@ -175,31 +175,27 @@ const Home = () => {
           }...`
         );
 
-        // Call fetchAllCars and handle loading state
         fetchAllCars(currentPage + 1);
 
-        // After fetching, reset isLoading to false to allow next fetch
         setIsLoading(false);
       }
     };
 
-    // Debounce mechanism: delay the handling of the scroll event
     let timeout;
     const handleScrollDebounced = () => {
       if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(handleScroll, 200); // Delay to avoid excessive triggering
+      timeout = setTimeout(handleScroll, 200); 
     };
 
     window.addEventListener("scroll", handleScrollDebounced);
 
     return () => {
       window.removeEventListener("scroll", handleScrollDebounced);
-      if (timeout) clearTimeout(timeout); // Cleanup timeout on unmount
+      if (timeout) clearTimeout(timeout); 
     };
-  }, [currentPage, isLoading, totalPages, hasMore]); // Re-run the effect when any of these dependencies change
+  }, [currentPage, isLoading, totalPages, hasMore]);
 
   useEffect(() => {
-    // Debounce form typing
     if (typingTimer) clearTimeout(typingTimer);
     const controller = new AbortController();
     const signal = controller.signal;
@@ -207,13 +203,13 @@ const Home = () => {
 
     if (isQueryEmpty && !firstFetchDone.current) {
       setCars([]);
-      firstFetchDone.current = true; // Mark the first fetch as done
-      fetchAllCars(1); // Fetch first page
+      firstFetchDone.current = true; 
+      fetchAllCars(1); 
     }
     if (!isQueryEmpty) {
       firstFetchDone.current = false;
       const newTypingTimer = setTimeout(() => {
-        fetchFilteredCars(signal); // Replace with your filtered fetch logic
+        fetchFilteredCars(signal); 
       }, doneTypingInterval);
       setTypingTimer(newTypingTimer);
     }
@@ -317,17 +313,17 @@ const Home = () => {
           <span className="text-warning">&nbsp;Borrow My Wheels</span>
         </h1>
 
-        <section class="section get-start" id="get-start">
-          <div class="container">
-            <h2 class="h2 section-title">Get started with 4 simple steps</h2>
-            <ul class="get-start-list">
+        <section className="section get-start" id="get-start">
+          <div className="container">
+            <h2 className="h2 section-title">Get started with 4 simple steps</h2>
+            <ul className="get-start-list">
               <li>
-                <div class="get-start-card">
-                  <div class="card-icon icon-1">
-                    <i class="fas fa-user-plus"></i>
+                <div className="get-start-card">
+                  <div className="card-icon icon-1">
+                    <i className="fas fa-user-plus"></i>
                   </div>
-                  <h3 class="card-title">Create a profile</h3>
-                  <p class="card-text">
+                  <h3 className="card-title">Create a profile</h3>
+                  <p className="card-text">
                     1. Visit our website and click on the "Register" button.{" "}
                     <br />
                     2. Fill out the registration form with your details.
@@ -335,20 +331,18 @@ const Home = () => {
                     3. Log in and put the information needed.
                   </p>
 
-                  <Link to="/register">
-                    <a href="" class="card-link">
+                  <Link to="/register" className="card-link">
                       Get started
-                    </a>
                   </Link>
                 </div>
               </li>
               <li>
-                <div class="get-start-card">
-                  <div class="card-icon icon-2">
-                    <i class="fas fa-car"></i>
+                <div className="get-start-card">
+                  <div className="card-icon icon-2">
+                    <i className="fas fa-car"></i>
                   </div>
-                  <h3 class="card-title">Tell us what car you want</h3>
-                  <p class="card-text">
+                  <h3 className="card-title">Tell us what car you want</h3>
+                  <p className="card-text">
                     1. Select the car type you need (e.g., sedan, SUV, or
                     truck).
                     <br />
@@ -362,12 +356,12 @@ const Home = () => {
                 </div>
               </li>
               <li>
-                <div class="get-start-card">
-                  <div class="card-icon icon-3">
-                    <i class="fas fa-handshake"></i>
+                <div className="get-start-card">
+                  <div className="card-icon icon-3">
+                    <i className="fas fa-handshake"></i>
                   </div>
-                  <h3 class="card-title">Match with seller</h3>
-                  <p class="card-text">
+                  <h3 className="card-title">Match with seller</h3>
+                  <p className="card-text">
                     1. Browse through our list of verified sellers.
                     <br />
                     2. Check seller profiles and customer reviews.
@@ -379,12 +373,12 @@ const Home = () => {
                 </div>
               </li>
               <li>
-                <div class="get-start-card">
-                  <div class="card-icon icon-4">
-                    <i class="fas fa-credit-card"></i>
+                <div className="get-start-card">
+                  <div className="card-icon icon-4">
+                    <i className="fas fa-credit-card"></i>
                   </div>
-                  <h3 class="card-title">Make a deal</h3>
-                  <p class="card-text">
+                  <h3 className="card-title">Make a deal</h3>
+                  <p className="card-text">
                     1. Negotiate the price and finalize terms with the seller.
                     <br />
                     2. Agree on a payment method and schedule.
@@ -777,64 +771,64 @@ const Home = () => {
               </Typography>
             )}
           </div>
-          <footer class="footer">
-            <div class="container">
-              <div class="footer-top">
-                <div class="footer-brand">
-                  <a href="#" class="logo">
-                    <img src="../../images/logo.png" alt="BMW" class="w-25" />
+          <footer className="footer">
+            <div className="container">
+              <div className="footer-top">
+                <div className="footer-brand">
+                  <a href="#" className="logo">
+                    <img src="../../images/logo.png" alt="BMW" className="w-25" />
                   </a>
 
-                  <p class="footer-text">
+                  <p className="footer-text">
                     Search for cheap rental cars in the Philippines. With a
                     diverse fleet of many vehicles, with an attractive and fun
                     selection.
                   </p>
                 </div>
 
-                <ul class="footer-list"></ul>
+                <ul className="footer-list"></ul>
               </div>
 
-              <div class="footer-bottom">
-                <ul class="social-list">
+              <div className="footer-bottom">
+                <ul className="social-list">
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="logo-facebook"></ion-icon>
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="logo-instagram"></ion-icon>
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="logo-twitter"></ion-icon>
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="logo-linkedin"></ion-icon>
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="logo-skype"></ion-icon>
                     </a>
                   </li>
 
                   <li>
-                    <a href="#" class="social-link">
+                    <a href="#" className="social-link">
                       <ion-icon name="mail-outline"></ion-icon>
                     </a>
                   </li>
                 </ul>
 
-                <p class="copyright">
+                <p className="copyright">
                   &copy; 2024 <a href="#">Daniel and Jana</a>. All Rights
                   Reserved
                 </p>

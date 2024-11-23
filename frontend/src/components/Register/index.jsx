@@ -7,79 +7,80 @@ import styles from './styles.module.css';
 import axios from 'axios';
 import { errMsg } from '../../utils/helper';
 import SignWithGoogle from '../login/SignWithGoogle';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const Register = () => {
-    const [data, setData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-    });
     const [avatar, setAvatar] = useState(null);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = ({ currentTarget: input }) => {
-        console.log(data, avatar)
-        if (input.name === 'avatar') {
-            setAvatar(input.files[0]);
-        } else {
-            setData({ ...data, [input.name]: input.value });
-        }
+    // Initial Formik values
+    const initialValues = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        avatar: null,
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true)
+    // Validation schema with Yup
+    const validationSchema = Yup.object({
+        firstName: Yup.string().required('First Name is required'),
+        lastName: Yup.string().required('Last Name is required'),
+        email: Yup.string().email('Invalid email address').required('Email is required'),
+        password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+        avatar: Yup.mixed().nullable().required('Avatar is required'),
+    });
+
+    // Form submission
+    const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+        setLoading(true);
         try {
-            await createUserWithEmailAndPassword(auth, data.email, data.password);
+            const { firstName, lastName, email, password, avatar } = values;
+            const result = await createUserWithEmailAndPassword(auth, email, password);
             const user = auth.currentUser;
-            console.log(user)
 
             const formData = new FormData();
-            formData.append('uid', user.uid)
-            for (const key in data) {
-                formData.append(key, data[key]);
-            }
-            if (avatar) {
-                formData.append('avatar', avatar);
-            }
+            formData.append('uid', user.uid);
+            formData.append('firstName', firstName);
+            formData.append('lastName', lastName);
+            formData.append('email', email);
+            formData.append('password', password);
+            if (avatar) formData.append('avatar', avatar);
 
-            if (user) {
-                const config = {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                };
-                await axios.post(`${import.meta.env.VITE_API}/register`, formData, config)
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
 
-                toast.success("User Registered Successfully!", { 
-                    position: "bottom-right",
-                });
+            // Send the form data to the backend
+            await axios.post(`${import.meta.env.VITE_API}/register`, formData, config);
 
-                navigate("/login");
-            }
+            toast.success('User Registered Successfully!', {
+                position: 'bottom-right',
+            });
 
+            navigate('/login');
         } catch (error) {
             if (error.response && error.response.status >= 400 && error.response.status <= 500) {
                 const { errors, message } = error.response.data;
-            
                 if (errors) {
                     errors.forEach(err => {
                         toast.error(err, {
-                            position: "bottom-right"
+                            position: 'bottom-right',
                         });
                     });
                 }
-            
-                setError(message);
-            }    
+                setErrors({ submit: message });
+            }
             if (error.message) {
-                errMsg("Error" + error.message)
-            }        
+                errMsg('Error ' + error.message);
+            }
         } finally {
-            setLoading(false)
+            setLoading(false);
+            setSubmitting(false);
         }
     };
 
@@ -95,53 +96,64 @@ const Register = () => {
                     </Link>
                 </div>
                 <div className={styles.right}>
-                    <form className={styles.form_container} onSubmit={handleSubmit}>
-                        <h1>Create Account</h1>
-                        <input 
-                            type="text"
-                            placeholder='First Name'
-                            name='firstName'
-                            onChange={handleChange}
-                            value={data.firstName}
-                            className={styles.input}
-                        />
-                        <input 
-                            type="text"
-                            placeholder='Last Name'
-                            name='lastName'
-                            onChange={handleChange}
-                            value={data.lastName}
-                            className={styles.input}
-                        />
-                        <input 
-                            type="email"
-                            placeholder='Email'
-                            name='email'
-                            onChange={handleChange}
-                            value={data.email}
-                            className={styles.input}
-                        />
-                        <input 
-                            type="password"
-                            placeholder='Password'
-                            name='password'
-                            onChange={handleChange}
-                            value={data.password}
-                            className={styles.input}
-                        />
-                        <input
-                            type="file"
-                            name="avatar"
-                            accept="image/jpeg, image/jpg, image/png" 
-                            className={styles.input}
-                            onChange={handleChange}
-                        />
-                        {error && <div className={styles.error_msg}>{error}</div>}
-                        <button type="submit" className={styles.green_btn} disabled={loading}>
-                            {loading ? 'Loading...' : 'Sign Up'}
-                        </button>
-                    </form>
-                    <SignWithGoogle method="Sign Up"/>
+                    <Formik
+                        initialValues={initialValues}
+                        validationSchema={validationSchema}
+                        onSubmit={handleSubmit}
+                    >
+                        {({ setFieldValue, isSubmitting, errors }) => (
+                            <Form className={styles.form_container}>
+                                <h1>Create Account</h1>
+                                <Field
+                                    type="text"
+                                    name="firstName"
+                                    placeholder="First Name"
+                                    className={styles.input}
+                                />
+                                <ErrorMessage name="firstName" component="div" className="text-danger" />
+
+                                <Field
+                                    type="text"
+                                    name="lastName"
+                                    placeholder="Last Name"
+                                    className={styles.input}
+                                />
+                                <ErrorMessage name="lastName" component="div" className="text-danger" />
+
+                                <Field
+                                    type="email"
+                                    name="email"
+                                    placeholder="Email"
+                                    className={styles.input}
+                                />
+                                <ErrorMessage name="email" component="div" className="text-danger" />
+
+                                <Field
+                                    type="password"
+                                    name="password"
+                                    placeholder="Password"
+                                    className={styles.input}
+                                />
+                                <ErrorMessage name="password" component="div" className="text-danger" />
+
+                                <input
+                                    type="file"
+                                    name="avatar"
+                                    accept="image/jpeg, image/jpg, image/png"
+                                    className={styles.input}
+                                    onChange={(event) => setFieldValue('avatar', event.currentTarget.files[0])}
+                                />
+                                <ErrorMessage name="avatar" component="div" className="text-danger" />
+
+                                {errors.submit && <div className="text-danger">{errors.submit}</div>}
+
+                                <button type="submit" className={styles.green_btn} disabled={isSubmitting || loading}>
+                                    {loading ? 'Loading...' : 'Sign Up'}
+                                </button>
+                            </Form>
+                        )}
+                    </Formik>
+                    <SignWithGoogle method="Sign Up" />
                 </div>
             </div>
         </div>

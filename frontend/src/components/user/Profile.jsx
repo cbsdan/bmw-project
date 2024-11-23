@@ -6,29 +6,25 @@ import {
   Avatar,
   Grid,
   Paper,
-  TextField,
   Button,
 } from "@mui/material";
-import { authenticate, errMsg, getToken, getUser, succesMsg } from "../../utils/helper";
+import {
+  authenticate,
+  errMsg,
+  getToken,
+  getUser,
+  succesMsg,
+} from "../../utils/helper";
 import LoadingSpinner from "../layout/LoadingSpinner";
 import _ from "lodash";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Form, Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
-  const [originalUserData, setOriginalUserData] = useState({});
   const [loading, setLoading] = useState(false);
-  const [disableUpdateBtn, setDisableUpdateBtn] = useState(true);
-  const [newAvatar, setNewAvatar] = useState(null)
-
-  let navigate = useNavigate()
-
-  const handleInputFieldChange = ({ currentTarget: input }) => {
-    const updatedUserData = { ...userData, [input.name]: input.value };
-    setUserData(updatedUserData);
-    setDisableUpdateBtn(_.isEqual(updatedUserData, originalUserData));
-  };
+  const [isUpdated, setIsUpdated] = useState(false);
+const [newAvatar, setNewAvatar] = useState("")
 
   const handleAvatarClick = () => {
     document.getElementById("avatarUpload").click();
@@ -54,11 +50,10 @@ const Profile = () => {
       if (response.user) {
         setUserData(response.user);
         let currentAccountLoggedIn = {
-            user: response.user,
-            token: getToken()
-        }
-        authenticate(currentAccountLoggedIn, ()=>{})
-        setOriginalUserData(response.user);
+          user: response.user,
+          token: getToken(),
+        };
+        authenticate(currentAccountLoggedIn, () => {});
       }
     } catch (error) {
       errMsg("Error: " + error.message);
@@ -68,59 +63,64 @@ const Profile = () => {
     }
   };
 
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setSubmitting(true);
+    setLoading(true);
+    setLoading(true);
+    try {
+      const { firstName, lastName, avatar } = values;
+
+      const formData = new FormData();
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      if (avatar) {
+        formData.append("avatar", avatar);
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API}/update-profile/${getUser()._id}`,
+        formData,
+        config
+      );
+      console.log(response);
+      succesMsg("User information updated successfully!");
+      setIsUpdated(true);
+      fetchUserData();
+    } catch (error) {
+      errMsg("Error: " + error.message);
+      console.log(error);
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
   const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setUserData({ ...userData, avatar: { url: e.target.result } });
-        setNewAvatar(file);
+        setNewAvatar(e.target.result)
       };
       reader.readAsDataURL(file);
-      setDisableUpdateBtn(false)
     }
   };
 
-  const handleSubmit = async (e)=> {
-    e.preventDefault();
-    setLoading(true)
-    try {
-        const formData = new FormData();
-        for (const key in userData) {
-            if (key=="avatar") {
-                continue;
-            }
-            formData.append(key, userData[key]);
-        }
-        if (newAvatar) {
-            formData.append('avatar', newAvatar);
-        }
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${getToken()}`,
-                'Content-Type': 'multipart/form-data'
-            }
-        };
-
-        const response = await axios.put(`${import.meta.env.VITE_API}/update-profile/${getUser()._id}`, formData, config)
-        setOriginalUserData(userData)
-        setDisableUpdateBtn(true)
-        console.log(response)
-        succesMsg("User information updated successfully!")
-        
-        fetchUserData()
-
-    } catch(error) {
-        errMsg("Error: " + error.message)
-        console.log(error)
-    } finally {
-        setLoading(false)
-    }
-  }
   useEffect(() => {
     fetchUserData();
+  }, [isUpdated]);
 
-  }, []);
+  const validationSchema = Yup.object({
+    firstName: Yup.string().required("First Name is required"),
+    lastName: Yup.string().required("Last Name is required"),
+  });
 
   return (
     <>
@@ -140,90 +140,116 @@ const Profile = () => {
             <Container maxWidth="sm">
               <Paper style={{ padding: "16px", marginTop: "16px" }}>
                 <Grid container direction="column" alignItems="center">
-                  <Avatar
-                    alt={userData.firstName}
-                    src={
-                      userData.avatar?.url ||
-                      "./src/assets/images/default-image.jpg"
-                    }
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      marginBottom: "16px",
+                  <Formik
+                    initialValues={{
+                      firstName: userData.firstName,
+                      lastName: userData.lastName,
+                      role: userData.role,
+                      createdAt: userData.createdAt,
+                      avatar: null,
                     }}
-                    sx={{
-                        backgroundColor: "primary.main",
-                        ":hover": {
-                          opacity: "0.7",
-                          cursor: "pointer"
-                        }
-                      }}
-                    onClick={handleAvatarClick}
-                  />
-                    <input
-                    id="avatarUpload"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleAvatarChange}
-                    className="d-none"
-                  />
-                  <TextField
-                    label="First Name"
-                    name="firstName"
-                    value={userData.firstName}
-                    onChange={handleInputFieldChange}
-                    fullWidth
-                    style={{ marginBottom: "16px" }}
-                  />
-                  <TextField
-                    label="Last Name"
-                    name="lastName"
-                    value={userData.lastName}
-                    onChange={handleInputFieldChange}
-                    fullWidth
-                    style={{ marginBottom: "16px" }}
-                  />
-                  <TextField
-                    label="Role"
-                    value={userData.role}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    fullWidth
-                    style={{ marginBottom: "16px" }}
-                  />
-                  <TextField
-                    label="Account Created"
-                    value={new Date(userData.createdAt).toLocaleDateString()}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid
-                  container
-                  justifyContent="center"
-                >
-                  <Button
-                    disabled={disableUpdateBtn}
-                    variant="contained"
-                    sx={{
-                      backgroundColor: disableUpdateBtn
-                        ? "grey"
-                        : "primary.main",
-                      ":hover": {
-                        backgroundColor: disableUpdateBtn
-                          ? "grey"
-                          : "primary.dark",
-                      },
-                    }}
-                    className="my-3"
-                    onClick={handleSubmit}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
                   >
-                    Update
-                  </Button>
+                    {({ setFieldValue, isSubmitting, errors }) => (
+                      <Form className="d-flex align-items-start flex-column justify-content-center gap-3 w-75">
+                        <div className="d-flex align-items-center justify-content-center w-100 py-2">
+
+                        <Avatar
+                          alt={userData.firstName}
+                          src={
+                            newAvatar || userData.avatar?.url ||
+                            "./src/assets/images/default-image.jpg"
+                          }
+                          style={{
+                            width: "80px",
+                            height: "80px",
+                          }}
+                          sx={{
+                            backgroundColor: "primary.main",
+                            ":hover": {
+                              opacity: "0.7",
+                              cursor: "pointer",
+                            },
+                          }}
+                          onClick={handleAvatarClick}
+                        />
+                        <input
+                          id="avatarUpload"
+                          type="file"
+                          name="avatar"
+                          accept="image/jpeg, image/jpg, image/png"
+                          style={{ display: "none" }}
+                          onChange={(event) => {
+                            setFieldValue(
+                              "avatar",
+                              event.currentTarget.files[0]
+                            );
+                            handleAvatarChange(event)
+                          }}
+                          className="d-none"
+                        />
+                        </div>
+                        <Field
+                          type="text"
+                          name="firstName"
+                          placeholder="First Name"
+                          className="inputField"
+                        />
+                        <ErrorMessage
+                          name="firstName"
+                          component="div"
+                          className="text-danger"
+                          style={{fontSize: "14px"}}
+                        />
+
+                        <Field
+                          type="text"
+                          name="lastName"
+                          placeholder="First Name"
+                          className="inputField"
+                        />
+                        <ErrorMessage
+                          name="lastName"
+                          component="div"
+                          className="text-danger"
+                          style={{fontSize: "14px"}}
+                        />
+
+                        <Field
+                          label="Role"
+                          value={userData.role}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                          className="inputField"
+                        />
+                        <Field
+                          label="Account Created"
+                          value={new Date(
+                            userData.createdAt
+                          ).toLocaleDateString()}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                          className="inputField"
+                        />
+                        <Grid container justifyContent="center">
+                          <Button
+                            variant="contained"
+                            type="submit"
+                            sx={{
+                              backgroundColor: "primary.dark",
+                            }}
+                            className="my-3"
+                            disabled={isSubmitting || loading}
+                          >
+                            {!isSubmitting ? "Update" : "Updating"}
+                          </Button>
+                        </Grid>
+                      </Form>
+                    )}
+                  </Formik>
                 </Grid>
               </Paper>
             </Container>

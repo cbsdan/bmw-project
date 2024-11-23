@@ -1,20 +1,86 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Form, Formik, Field, ErrorMessage } from "formik";
+import { Modal } from "react-bootstrap";
+import { errMsg, succesMsg } from "../../utils/helper";
+import LoadingSpinner from "../layout/LoadingSpinner";
+import UpdatingCarSchema from "../schema/UpdatingCarSchema";
+import carSchema from "../schema/CarSchema";
+import { getUser, getToken } from "../../utils/helper";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-import { getToken, succesMsg, errMsg } from "../../../utils/helper";
-import Sidebar from "../Sidebar";
-import LoadingSpinner from "../../layout/LoadingSpinner";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import UpdatingCarSchema from "../../schema/UpdatingCarSchema";
+import { useNavigate } from "react-router-dom";
 
-const UpdateCar = () => {
-  const [carData, setCarData] = useState({});
-  const [loading, setLoading] = useState(true);
+const CarFormModal = ({ show, handleClose, operation, carId }) => {
   const [imagePreviews, setImagePreviews] = useState([]);
-  let { id } = useParams();
+  const [carData, setCarData] = useState({});
+  const [loading, setLoading] = useState(false);
+
   let navigate = useNavigate();
 
+  const handleNewSubmit = async (values, { setSubmitting, resetForm }) => {
+    const data = new FormData();
+
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === "images" && value) {
+        value.forEach((image) => {
+          data.append("images", image);
+        });
+      } else {
+        data.append(key, value);
+      }
+    });
+
+    try {
+      await axios.post("http://localhost:4000/api/v1/CreateCar", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      succesMsg("Car created successfully!");
+      resetForm();
+      handleClose();
+      navigate("/my-cars");
+    } catch (error) {
+      errMsg("Error: " + error.message);
+      console.log(error);
+    }
+
+    setSubmitting(false);
+  };
+
+  const updateCar = async (values, { setSubmitting, resetForm }) => {
+    setSubmitting(true);
+    const data = new FormData();
+    for (const key in values) {
+      if (key !== "images") {
+        data.append(key, values[key]);
+      }
+    }
+
+    if (values.images) {
+      values.images.forEach((image) => {
+        data.append("images", image);
+      });
+    }
+
+    try {
+      await axios.put(`http://localhost:4000/api/v1/Cars/${carId}`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
+      succesMsg("Car updated successfully!");
+      resetForm();
+      handleClose();
+      navigate("/my-cars");
+    } catch (error) {
+      errMsg("Error: " + error.message);
+      console.log(error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
   const getCarDetails = async (id) => {
     try {
       setLoading(true);
@@ -31,91 +97,95 @@ const UpdateCar = () => {
     }
   };
 
-  const updateCar = async (values, { setSubmitting, resetForm }) => {
-    const data = new FormData();
-    for (const key in values) {
-      if (key !== "images") {
-        data.append(key, values[key]);
-      }
-    }
-
-    if (values.images) {
-      values.images.forEach((image) => {
-        data.append("images", image);
-      });
-    }
-
-    try {
-      await axios.put(`http://localhost:4000/api/v1/Cars/${id}`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
-      succesMsg("Car updated successfully!");
-      resetForm();
-      navigate("/admin/cars");
-    } catch (error) {
-      const { message, error: errorDetails } = error.response.data;
-      if (message) {
-        errMsg(message);
-      }
-      if (errorDetails && typeof errorDetails === "string") {
-        const errorMessages = errorDetails.split(", ");
-        errorMessages.forEach((errorMessage) => {
-          errMsg(errorMessage);
-        });
-      }
-    }
+  const initialValues = {
+    model: "",
+    brand: "",
+    year: "",
+    seatCapacity: "",
+    fuel: "",
+    mileage: "",
+    transmission: "",
+    displacement: "",
+    vehicleType: "",
+    pricePerDay: "",
+    isAutoApproved: false,
+    description: "",
+    termsAndConditions: "",
+    pickUpLocation: "",
+    owner: getUser()._id,
+    isActive: true,
+    images: [],
+  };
+  const initialUpdateValues = (carData) => {
+    console.log(carData);
+    return {
+      model: carData.model || "",
+      brand: carData.brand || "",
+      year: carData.year || "",
+      seatCapacity: carData.seatCapacity || "",
+      fuel: carData.fuel || "",
+      mileage: carData.mileage || "",
+      transmission: carData.transmission || "",
+      displacement: carData.displacement || "",
+      vehicleType: carData.vehicleType || "",
+      pricePerDay: carData.pricePerDay || "",
+      isAutoApproved: carData.isAutoApproved || false,
+      description: carData.description || "",
+      termsAndConditions: carData.termsAndConditions || "",
+      pickUpLocation: carData.pickUpLocation || "",
+      owner: carData.owner?._id || "",
+      isActive: carData.isActive || true,
+      images: [],
+    };
   };
 
   useEffect(() => {
-    getCarDetails(id);
-  }, [id]);
+    console.log(carId);
+    console.log("print");
+    if (typeof operation === "undefined" || !operation) {
+      return errMsg("No set operation!");
+    } else if (operation !== "Add" && operation !== "Edit") {
+      return errMsg("Set operation not defined!");
+    }
 
+    if (operation === "Edit") {
+      if (typeof carId === "undefined") {
+        return errMsg("Car ID not defined");
+      }
+      try {
+        getCarDetails(carId);
+        console.log("fetched");
+      } catch (error) {
+        return errMsg("Error: " + error.message);
+      }
+    }
+  }, [carId]);
   return (
-    <div>
-      <Sidebar />
-      {loading ? (
-        <LoadingSpinner message="Loading..." />
-      ) : (
-        <div style={styles.formContainer} className="p-0">
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          {operation == "Add" ? "Add New Car" : "Edit Car"}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {loading ? (
+          <LoadingSpinner
+            message={
+              operation == "Add" ? "Adding your Car" : "Updating your Car"
+            }
+          />
+        ) : (
           <Formik
-            initialValues={{
-              model: carData.model || "",
-              brand: carData.brand || "",
-              year: carData.year || "",
-              seatCapacity: carData.seatCapacity || "",
-              fuel: carData.fuel || "",
-              mileage: carData.mileage || "",
-              transmission: carData.transmission || "",
-              displacement: carData.displacement || "",
-              vehicleType: carData.vehicleType || "",
-              pricePerDay: carData.pricePerDay || "",
-              isAutoApproved: carData.isAutoApproved || false,
-              description: carData.description || "",
-              termsAndConditions: carData.termsAndConditions || "",
-              pickUpLocation: carData.pickUpLocation || "",
-              owner: carData.owner._id || "",
-              isActive: carData.isActive || true,
-              images: [],
-            }}
-            validationSchema={UpdatingCarSchema}
-            onSubmit={updateCar}
+            initialValues={
+              operation == "Add" ? initialValues : initialUpdateValues(carData)
+            }
+            validationSchema={
+              operation == "Add" ? carSchema : UpdatingCarSchema
+            }
+            onSubmit={operation == "Add" ? handleNewSubmit : updateCar}
           >
-            {({ setFieldValue, isSubmitting }) => (
-              <Form className="margin-left-300 p-3">
-                <div className="d-flex align-items-center justify-content-between">
-                  <h2>Update Car Listing</h2>
-                  <Link
-                    to="/admin/cars"
-                    className="btn btn-secondary mt-3 ml-2"
-                  >
-                    Back to List
-                  </Link>
-                </div>
-                <hr />
-
+            {({ isSubmitting, setFieldValue }) => (
+              <Form>
                 <div style={styles.formGroup}>
                   <label>Model:</label>
                   <Field
@@ -312,9 +382,10 @@ const UpdateCar = () => {
                   />
                 </div>
 
-                <div style={styles.formGroup}>
+                <div style={styles.formGroup} className="d-none">
+                  <label>Owner:</label>
                   <Field
-                    type="hidden"
+                    type="text"
                     name="owner"
                     placeholder="Owner"
                     style={styles.input}
@@ -368,26 +439,25 @@ const UpdateCar = () => {
                   ))}
                 </div>
 
-                <div style={styles.formGroup}>
-                  <button
-                    type="submit"
-                    style={styles.button}
-                    disabled={isSubmitting}
-                  >
-                    {!isSubmitting ? "Update Car" : "Submitting..."}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  style={styles.button}
+                  disabled={isSubmitting}
+                >
+                  {!isSubmitting ? "Submit" : "Submitting..."}
+                </button>
               </Form>
             )}
           </Formik>
-        </div>
-      )}
-    </div>
+        )}
+      </Modal.Body>
+    </Modal>
   );
 };
 
 const styles = {
   formContainer: {
+    maxWidth: "900px",
     width: "100%",
     margin: "0 auto",
     padding: "20px",
@@ -421,6 +491,9 @@ const styles = {
     border: "1px solid #ddd",
     height: "100px",
   },
+  fileInput: {
+    width: "100%",
+  },
   button: {
     width: "100%",
     padding: "10px",
@@ -432,4 +505,4 @@ const styles = {
   },
 };
 
-export default UpdateCar;
+export default CarFormModal;

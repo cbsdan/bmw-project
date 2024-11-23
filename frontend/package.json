@@ -23,6 +23,7 @@
     "bootstrap": "^5.3.3",
     "date-fns": "^4.1.0",
     "firebase": "^11.0.2",
+    "formik": "^2.4.6",
     "lodash": "^4.17.21",
     "mdbreact": "^5.2.0",
     "nodemailer": "^6.9.16",
@@ -35,7 +36,8 @@
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.6",
     "recharts": "^2.13.2",
-    "sweetalert2": "^11.14.3"
+    "sweetalert2": "^11.14.3",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",

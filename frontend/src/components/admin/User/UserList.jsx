@@ -88,6 +88,11 @@ const UserList = () => {
                     sort: "asc"
                 },
                 {
+                    label: "Email",
+                    field: "email",
+                    sort: "asc"
+                },
+                {
                     label: "First Name",
                     field: "firstName",
                     sort: "asc"
@@ -119,6 +124,7 @@ const UserList = () => {
                         </div>
                     ),
                     id: user._id,
+                    email: user.email,
                     firstName: user.firstName,
                     lastName: user.lastName,
                     role: user.role === 'admin' ? "Admin" : "User",
