@@ -287,100 +287,104 @@ const Home = () => {
   };
 
   const isFavorite = (carId) => {
+    console.log(`Favorite Cars: ${favoriteCars}`);
+    console.log(carId);
     return favoriteCars.some((favCar) => favCar.car._id === carId);
   };
 
   return (
     <>
       <main id="home">
-        <h1 className="d-none d-md-flex">
-          Welcome to
-          <span className="text-warning">&nbsp;Borrow My Wheels</span>
-        </h1>
-        <h2 className="d-block d-md-none text-warning text-center py-5 mb-0">
-          Welcome to Borrow My Wheels
-        </h2>
-        <section className="section get-start" id="get-start">
-          <div className="container">
-            <h2 className="h2 section-title">
-              Get started with 4 simple steps
-            </h2>
-            <ul className="get-start-list">
-              <li>
-                <div className="get-start-card light-blue-bg">
-                  <div className="card-icon icon-1">
-                    <i className="fas fa-user-plus"></i>
-                  </div>
-                  <h3 className="card-title">Create a profile</h3>
-                  <p className="card-text">
-                    1. Visit our website and click on the "Register" button.{" "}
-                    <br />
-                    2. Fill out the registration form with your details.
-                    <br />
-                    3. Log in and put the information needed.
-                  </p>
+        <div>
+          <h1 className="d-none d-md-flex">
+            Welcome to
+            <span className="text-warning">&nbsp;Borrow My Wheels</span>
+          </h1>
+          <h2 className="d-block d-md-none text-warning text-center py-5 mb-0">
+            Welcome to Borrow My Wheels
+          </h2>
+          <section className="section get-start" id="get-start">
+            <div className="container">
+              <h2 className="h2 section-title">
+                Get started with 4 simple steps
+              </h2>
+              <ul className="get-start-list">
+                <li>
+                  <div className="get-start-card light-blue-bg">
+                    <div className="card-icon icon-1">
+                      <i className="fas fa-user-plus"></i>
+                    </div>
+                    <h3 className="card-title">Create a profile</h3>
+                    <p className="card-text">
+                      1. Visit our website and click on the "Register" button.{" "}
+                      <br />
+                      2. Fill out the registration form with your details.
+                      <br />
+                      3. Log in and put the information needed.
+                    </p>
 
-                  <Link to="/register" className="card-link">
-                    Get started
-                  </Link>
-                </div>
-              </li>
-              <li>
-                <div className="get-start-card light-blue-bg">
-                  <div className="card-icon icon-2">
-                    <i className="fas fa-car"></i>
+                    <Link to="/register" className="card-link">
+                      Get started
+                    </Link>
                   </div>
-                  <h3 className="card-title">Tell us what car you want</h3>
-                  <p className="card-text">
-                    1. Select the car type you need (e.g., sedan, SUV, or
-                    truck).
-                    <br />
-                    2. Specify your preferred brand, model, and features.
-                    <br />
-                    3. Indicate your budget and any additional requirements.
-                    <br />
-                    4. Submit the details, and we’ll match you with the best
-                    options.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <div className="get-start-card light-blue-bg">
-                  <div className="card-icon icon-3">
-                    <i className="fas fa-handshake"></i>
+                </li>
+                <li>
+                  <div className="get-start-card light-blue-bg">
+                    <div className="card-icon icon-2">
+                      <i className="fas fa-car"></i>
+                    </div>
+                    <h3 className="card-title">Tell us what car you want</h3>
+                    <p className="card-text">
+                      1. Select the car type you need (e.g., sedan, SUV, or
+                      truck).
+                      <br />
+                      2. Specify your preferred brand, model, and features.
+                      <br />
+                      3. Indicate your budget and any additional requirements.
+                      <br />
+                      4. Submit the details, and we’ll match you with the best
+                      options.
+                    </p>
                   </div>
-                  <h3 className="card-title">Match with seller</h3>
-                  <p className="card-text">
-                    1. Browse through our list of verified sellers.
-                    <br />
-                    2. Check seller profiles and customer reviews.
-                    <br />
-                    3. Contact the seller to discuss your requirements.
-                    <br />
-                    4. Schedule a meeting or test drive to finalize details.
-                  </p>
-                </div>
-              </li>
-              <li>
-                <div className="get-start-card light-blue-bg">
-                  <div className="card-icon icon-4">
-                    <i className="fas fa-credit-card"></i>
+                </li>
+                <li>
+                  <div className="get-start-card light-blue-bg">
+                    <div className="card-icon icon-3">
+                      <i className="fas fa-handshake"></i>
+                    </div>
+                    <h3 className="card-title">Match with seller</h3>
+                    <p className="card-text">
+                      1. Browse through our list of verified sellers.
+                      <br />
+                      2. Check seller profiles and customer reviews.
+                      <br />
+                      3. Contact the seller to discuss your requirements.
+                      <br />
+                      4. Schedule a meeting or test drive to finalize details.
+                    </p>
                   </div>
-                  <h3 className="card-title">Make a deal</h3>
-                  <p className="card-text">
-                    1. Negotiate the price and finalize terms with the seller.
-                    <br />
-                    2. Agree on a payment method and schedule.
-                    <br />
-                    3. Complete the necessary paperwork and documentation.
-                    <br />
-                    4. Make the payment and close the deal securely.
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </section>
+                </li>
+                <li>
+                  <div className="get-start-card light-blue-bg">
+                    <div className="card-icon icon-4">
+                      <i className="fas fa-credit-card"></i>
+                    </div>
+                    <h3 className="card-title">Make a deal</h3>
+                    <p className="card-text">
+                      1. Negotiate the price and finalize terms with the seller.
+                      <br />
+                      2. Agree on a payment method and schedule.
+                      <br />
+                      3. Complete the necessary paperwork and documentation.
+                      <br />
+                      4. Make the payment and close the deal securely.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
         <section
           className="about-us"
           id="about-us"
@@ -462,12 +466,12 @@ const Home = () => {
                         <CardMedia
                           component="img"
                           image="../../images/blog-1.jpg"
-                          alt="Opening of new offices of the company"
+                          alt="New offices of the company"
                           sx={{ height: 200 }}
                         />
                         <CardContent>
                           <Typography variant="h5" component="div">
-                            Opening of new offices of the company
+                            New offices of the company
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
                             <time dateTime="2022-01-14">January 14, 2022</time>
@@ -639,12 +643,12 @@ const Home = () => {
                     <div className="featured-car-card">
                       {getUser() ? (
                         <button
-                          className={`favorite-btn px-2 fs-3 ${
-                            isFavorite(car._id) ? "text-danger" : ""
-                          }`}
+                          className={`favorite-btn px-2 fs-3 `}
                           onClick={() => handleFavoriteClick(car)}
                         >
-                          <i className="fa fa-heart"></i>
+                          <i
+                            className={`fa-solid fa-bookmark ${isFavorite(car._id) ? "text-danger" : ""}`}
+                          ></i>{" "}
                         </button>
                       ) : (
                         <></>

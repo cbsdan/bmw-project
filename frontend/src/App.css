@@ -7,7 +7,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 2000;
     background-color: var(var(--primary-color));
 }
 body {
@@ -23,6 +23,18 @@ body {
 }
 .light-blue-bg {
     background-color: #D4EBF8 !important;
+}
+.blue-bg {
+    background-color: #9bdaff !important;
+}
+.light-blue-text {
+    color: #76cdff !important;
+}
+.dark-blue-text {
+    color: #0A3981;
+}
+.dark-blue-bg {
+    background-color: #0A3981 !important;
 }
 main#home {
     min-height: 80vh;
@@ -178,8 +190,8 @@ main#home h1 {
 }
 .favorite-btn {
     position: absolute;
-    background: var(--gradient);
-    padding: 5px;
+    background: #D4EBF8;
+    padding: 5px 10px;
     border-radius: 0 0 5px 0;
 }
 .card-price {
