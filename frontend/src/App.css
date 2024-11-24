@@ -26,7 +26,6 @@ body {
 }
 main#home {
     min-height: 80vh;
-    padding: 10px;
 }
 main#home h1 {
     text-align: center;
@@ -565,20 +564,7 @@ transform: scaleX(1);
 background: var(--carolina-blue);
 }
 
-.navbar {
-background: var(--alice-blue-1);
-position: fixed;
-top: 70px;
-bottom: 0;
-right: -260px;
-max-width: 260px;
-width: 100%;
-padding: 20px 25px;
-border: 1px solid var(--white);
-box-shadow: var(--shadow-1);
-visibility: hidden;
-transition: 0.25s cubic-bezier(0.51, 0.03, 0.64, 0.28);
-}
+
 
 .navbar.active {
 visibility: visible;

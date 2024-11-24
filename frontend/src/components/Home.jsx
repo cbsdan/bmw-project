@@ -293,11 +293,13 @@ const Home = () => {
   return (
     <>
       <main id="home">
-        <h1>
-          Welcome to{" "}
+        <h1 className="d-none d-md-flex">
+          Welcome to
           <span className="text-warning">&nbsp;Borrow My Wheels</span>
         </h1>
-
+        <h2 className="d-block d-md-none text-warning text-center py-5 mb-0">
+          Welcome to Borrow My Wheels
+        </h2>
         <section className="section get-start" id="get-start">
           <div className="container">
             <h2 className="h2 section-title">
@@ -379,8 +381,6 @@ const Home = () => {
             </ul>
           </div>
         </section>
-
-        <hr />
         <section
           className="about-us"
           id="about-us"
@@ -433,90 +433,96 @@ const Home = () => {
                     backgroundImage: "url(../../images/car-5.jpg)",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    height: "500px",
-                    width: "800px",
+                    maxWidth: "800px",
+                    width: "100%",
+                    maxHeight: "500px",
+                    height: "100%",
                     borderRadius: "10px",
                     boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
                     position: "relative",
                   }}
+                  className="d-none d-md-block"
                 ></Box>
               </Grid>
             </Grid>
-
-            <div className="row" style={{ marginTop: "40px" }}>
-              <div className="col-12">
-                <section className="section blog" id="blog">
-                  <Container>
-                    <Typography variant="h2" sx={{ marginBottom: "2rem" }}>
-                      BMW News
-                    </Typography>
-
-                    <Grid container spacing={4}>
-                      <Grid item xs={12} sm={6} md={4}>
-                        <Card className="light-blue-bg">
-                          <CardMedia
-                            component="img"
-                            image="../../images/blog-1.jpg"
-                            alt="Opening of new offices of the company"
-                            sx={{ height: 200 }}
-                          />
-                          <CardContent>
-                            <Typography variant="h5" component="div">
-                              Opening of new offices of the company
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              <time dateTime="2022-01-14">
-                                January 14, 2022
-                              </time>
-                            </Typography>
-                          </CardContent>
-                          <CardActions>
-                            <Link to="/register">
-                              <Button size="small" color="primary">
-                                Read More
-                              </Button>
-                            </Link>
-                          </CardActions>
-                        </Card>
-                      </Grid>
-
-                      <Grid item xs={12} sm={6} md={4}>
-                        <Card className="light-blue-bg">
-                          <CardMedia
-                            component="img"
-                            image="../../images/blog-1.jpg"
-                            alt="What cars are most vulnerable"
-                            sx={{ height: 200 }}
-                          />
-                          <CardContent>
-                            <Typography variant="h5" component="div">
-                              What cars are most vulnerable
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              <time dateTime="2022-01-14">
-                                January 14, 2022
-                              </time>
-                            </Typography>
-                          </CardContent>
-                          <CardActions>
-                            <Link to="/register">
-                              <Button size="small" color="primary">
-                                Read More
-                              </Button>
-                            </Link>
-                          </CardActions>
-                        </Card>
-                      </Grid>
-                    </Grid>
-                  </Container>
-                </section>
-              </div>
-            </div>
           </Container>
+        </section>
+        <section className="section get-start">
+          <div className="row" style={{ marginTop: "40px" }}>
+            <div className="col-12">
+              <section className="section blog" id="blog">
+                <Container>
+                  <Typography variant="h2" sx={{ marginBottom: "2rem" }}>
+                    BMW News
+                  </Typography>
+
+                  <Grid container spacing={4}>
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Card className="light-blue-bg">
+                        <CardMedia
+                          component="img"
+                          image="../../images/blog-1.jpg"
+                          alt="Opening of new offices of the company"
+                          sx={{ height: 200 }}
+                        />
+                        <CardContent>
+                          <Typography variant="h5" component="div">
+                            Opening of new offices of the company
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <time dateTime="2022-01-14">January 14, 2022</time>
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          <Link to="/register">
+                            <Button size="small" color="primary">
+                              Read More
+                            </Button>
+                          </Link>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                      <Card className="light-blue-bg">
+                        <CardMedia
+                          component="img"
+                          image="../../images/blog-1.jpg"
+                          alt="What cars are most vulnerable"
+                          sx={{ height: 200 }}
+                        />
+                        <CardContent>
+                          <Typography variant="h5" component="div">
+                            What cars are most vulnerable
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <time dateTime="2022-01-14">January 14, 2022</time>
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          <Link to="/register">
+                            <Button size="small" color="primary">
+                              Read More
+                            </Button>
+                          </Link>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                </Container>
+              </section>
+            </div>
+          </div>
         </section>
         <hr />
         <div className="hero-banner">
-          <video autoPlay loop muted playsInline className="video-background d-none d-lg-block">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="video-background d-none d-lg-block"
+          >
             <source src="../../images/background-video.mp4" type="video/mp4" />
             <p>Video playback is not supported by your browser.</p>
           </video>
@@ -649,7 +655,7 @@ const Home = () => {
                             src={car.images[0]}
                             alt={`${car.brand} ${car.model} ${car.year}`}
                             loading="lazy"
-                            style={{ maxWidth: "440px", width: "100%"}}
+                            style={{ maxWidth: "440px", width: "100%" }}
                             height="300"
                           />
                         </Link>
@@ -658,7 +664,10 @@ const Home = () => {
                       <div className="card-content pt-1">
                         <div className="card-title-wrapper">
                           <h3 className="h3 card-title">
-                            <Link to={`/car/info/${car._id}`} style={{textDecoration: "none"}}>
+                            <Link
+                              to={`/car/info/${car._id}`}
+                              style={{ textDecoration: "none" }}
+                            >
                               {`${car.model} ${car.brand}`}
                             </Link>
                           </h3>
@@ -707,15 +716,19 @@ const Home = () => {
                         </ul>
 
                         <p className="card-location p-0 m-0 mb-2">
-                          <i className="fa fa-location-dot me-2"></i>{car.pickUpLocation}
+                          <i className="fa fa-location-dot me-2"></i>
+                          {car.pickUpLocation}
                         </p>
                         <p className="card-location p-0 m-0">
-                          <i className="fa fa-user me-2"></i> {car.owner?.firstName} {car.owner?.lastName}
+                          <i className="fa fa-user me-2"></i>{" "}
+                          {car.owner?.firstName} {car.owner?.lastName}
                         </p>
 
-                          <p className="card-price m-0 py-2 text">
-                            <strong className="fw-bold">₱{car.pricePerDay} per day</strong>
-                          </p>
+                        <p className="card-price m-0 py-2 text">
+                          <strong className="fw-bold">
+                            ₱{car.pricePerDay} per day
+                          </strong>
+                        </p>
                         {car.isAutoApproved && (
                           <span className="badge badge-success mt-2">
                             Auto Approved

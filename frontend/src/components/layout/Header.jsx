@@ -26,8 +26,8 @@ const Header = () => {
   return (
     <>
       <nav id="headerNav" className="navbar row m-0 bg-warning mb-3">
-        <div className="col-12 col-md-3 py-0 m-0">
-          <div className="navbar-brand pl-5">
+        <div className="col-6 col-md-3 py-0 m-0">
+          <div className="navbar-brand pl-5 d-flex align-items-center justify-content-center">
             <Link
               to="/"
               className="text-dark d-flex align-items-center gap-3"
@@ -39,8 +39,8 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="col-12 col-md-6 mt-4 mt-md-0 text-center p-0 m-0 d-flex justify-content-center">
-          <div>
+        <div className="d-none col-6 col-md-6 mt-md-0 text-center p-0 m-0 d-md-flex justify-content-center">
+          <div className="d-flex justify-content-center align-items-center">
             <HashLink
               smooth
               to="/#get-start"
@@ -65,7 +65,7 @@ const Header = () => {
             </HashLink>
           </div>
         </div>
-        <div className="col-12 col-md-3 mt-4 mt-md-0 text-center p-0 m-0 d-flex justify-content-center">
+        <div className="col-6 col-md-3 mt-md-0 text-center p-0 m-0 d-flex justify-content-center">
           {user ? (
             <div className="ml-4 dropdown d-inline d-flex align-items-center">
               <img
