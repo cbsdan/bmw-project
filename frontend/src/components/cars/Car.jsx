@@ -246,7 +246,7 @@ const Car = () => {
               </Carousel.Item>
             )}
           </Carousel>
-          <div className="container mt-3">
+          <div className="container mt-3" style={{position: "relative"}}>
             {error ? <Alert message={error} type="error" /> : <></>}
             <h1 className="dark-blue-text">
               {carData.brand} {carData.model} ({carData.year})
@@ -278,19 +278,35 @@ const Car = () => {
                 <h4 className="border-bottom mb-3">Information</h4>
                 <div className="row">
                   <div className="m-0 mb-3 fs-6 d-flex align-items-center gap-2">
-                    <i className="fa fa-money-bill-wave fs-4 me-2" style={{opacity: "0.8"}}></i>
-                    <span className="fw-bold">₱{carData.pricePerDay} a day</span>
+                    <i
+                      className="fa fa-money-bill-wave fs-4 me-2"
+                      style={{ opacity: "0.8" }}
+                    ></i>
+                    <span className="fw-bold">
+                      ₱{carData.pricePerDay} a day
+                    </span>
                   </div>
                   <div className="m-0 mb-3 fs-6 d-flex align-items-center gap-2">
-                    <i className="fa fa-car fs-4 me-2" style={{opacity: "0.8"}}></i>
+                    <i
+                      className="fa fa-car fs-4 me-2"
+                      style={{ opacity: "0.8" }}
+                    ></i>
                     <span className="fw-bold">{carData.vehicleType}</span>
                   </div>
                   <div className="m-0 mb-3 fs-6 d-flex align-items-center gap-2">
-                    <i className="fa fa-users fs-4 me-2" style={{opacity: "0.8"}}></i>
-                    <span className="fw-bold">{carData.seatCapacity} Seat Capacity</span>
+                    <i
+                      className="fa fa-users fs-4 me-2"
+                      style={{ opacity: "0.8" }}
+                    ></i>
+                    <span className="fw-bold">
+                      {carData.seatCapacity} Seat Capacity
+                    </span>
                   </div>
                   <div className="m-0 mb-3 fs-6 d-flex align-items-center gap-2">
-                    <i className="fa fa-location fs-4 me-2" style={{opacity: "0.8"}}></i>
+                    <i
+                      className="fa fa-location fs-4 me-2"
+                      style={{ opacity: "0.8" }}
+                    ></i>
                     <span className="fw-bold">{carData.pickUpLocation}</span>
                   </div>
 
@@ -341,7 +357,7 @@ const Car = () => {
                   ) : isCarOnRental ? (
                     <h3>This car is currently on rental. Cannot Book Now.</h3>
                   ) : (
-                    <Card className="mt-3 p-3">
+                    <Card className="mt-3 p-3" style={{position: "sticky", top: "85px"}}>
                       <h2>Book Now:</h2>
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <Box display="flex" flexDirection="column" gap={2}>
@@ -390,6 +406,10 @@ const Car = () => {
                           >
                             Book
                           </Button>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <p className="fs-5">a day</p>
+                            <p className="fs-5 fw-bold">₱{carData.pricePerDay}</p>
+                          </div>
                         </Box>
                       </LocalizationProvider>
                     </Card>
@@ -408,69 +428,70 @@ const Car = () => {
             {carRating.length > 0 && (
               <div className="mt-5">
                 <h3 className="pb-3 dark-blue-text">Car Rating</h3>
-                <Grid container spacing={4}>
-                  {carRating.map((rating, index) => (
-                    <Grid
-                      container
-                      item
-                      xs={12}
-                      md={6}
-                      lg={12}
-                      key={index}
-                      spacing={1}
-                    >
-                      <Grid item xs={12} lg={8} md={6} className="m-0 p-1 pt-0">
-                        <Card variant="outlined" sx={{ boxShadow: "none" }}>
-                          <CardContent>
-                            <Typography variant="h6" component="div">
-                              {rating.renter.firstName} ***
-                            </Typography>
-                            <Typography variant="body1">
-                              Rating:{" "}
-                              <Rating
-                                value={rating.rating}
-                                precision={0.5}
-                                readOnly
-                              />
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {rating.comment}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              Date Created:{" "}
-                              {new Date(rating.createdAt).toLocaleDateString()}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
 
-                      {/* Image Content */}
-                      <Grid item xs={12} lg={4} md={6} className="m-0 p-1 pt-0">
-                        {rating.images && rating.images.length > 0 && (
-                          <Card variant="outlined" sx={{ boxShadow: "none" }}>
-                            <Carousel>
-                              {rating.images.length > 0 ? (
-                                rating.images.map((image, idx) => (
-                                  <Carousel.Item key={idx}>
-                                    <CardMedia
-                                      component="img"
-                                      alt={`Review Image ${idx + 1}`}
-                                      height="140"
-                                      image={image.url}
-                                      title={`Review Image ${idx + 1}`}
-                                    />
-                                  </Carousel.Item>
-                                ))
-                              ) : (
-                                <></>
-                              )}
-                            </Carousel>
-                          </Card>
-                        )}
-                      </Grid>
-                    </Grid>
+                  {carRating.map((rating) => (
+                    <>
+                      <div className="row py-3 ">
+                        <div class="col-12 col-md-4 row gap-2 pb-3 border-bottom">
+                          <div className="col-12 d-flex align-items-center justify-content-start gap-2">
+                            <div className="">
+                              <img
+                                src={`${rating.renter.avatar?.url || "/images/default-image.jpg"}`}
+                                alt="profile"
+                                style={{
+                                  borderRadius: "50%",
+                                  width: "60px",
+                                  height: "60px",
+                                }}
+                              />
+                            </div>
+                            <div className="d-flex flex-column">
+                              <div>
+                                {rating.renter.firstName}{" "}
+                                *
+                              </div>
+                              <div>
+                                <Rating
+                                  value={rating.rating}
+                                  precision={0.5}
+                                  readOnly
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12">
+                            {rating.comment}
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-4 pb-3 border-bottom">
+                          <Carousel>
+                            {rating.images.length > 0 ? (
+                              rating.images.map((image, idx) => (
+                                <Carousel.Item key={idx}>
+                                  <CardMedia
+                                    component="img"
+                                    alt={`Review Image ${idx + 1}`}
+                                    height="140"
+                                    image={image.url}
+                                    title={`Review Image ${idx + 1}`}
+                                  />
+                                </Carousel.Item>
+                              ))
+                            ) : (
+                              <Carousel.Item >
+                              <CardMedia
+                                component="img"
+                                alt={`No Review Image`}
+                                height="140"
+                                image={"/default-image.jpg"}
+                              />
+                            </Carousel.Item>
+                            )}
+                          </Carousel>
+                        </div>
+                      </div>
+                    </>
                   ))}
-                </Grid>
               </div>
             )}
             {carRentals.length > 0 && (
