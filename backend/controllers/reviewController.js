@@ -66,7 +66,7 @@ const createReview = async (req, res) => {
       req.files.map((file) =>
         cloudinary.uploader.upload(file.path, {
           folder: "reviews",
-          width: 150,
+          width: 600,
           crop: "scale",
         })
       )
@@ -125,6 +125,7 @@ const updateReview = async (req, res) => {
         req.files.map(async (file) => {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "reviews",
+            width: 600,
             public_id: file.filename,
           });
           return {

@@ -20,7 +20,7 @@ exports.createCar = async (req, res) => {
       try {
         const result = await cloudinary.v2.uploader.upload(file.path, {
           folder: "Cars",
-          width: 150,
+          width: 600,
           crop: "scale",
         });
 
@@ -161,7 +161,7 @@ exports.updateCar = async (req, res, next) => {
       for (let file of req.files) {
         const result = await cloudinary.v2.uploader.upload(file.path, {
           folder: "Cars",
-          width: 150,
+          width: 600,
           crop: "scale",
         });
 

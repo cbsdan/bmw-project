@@ -67,12 +67,10 @@ const FavoriteCars = () => {
                         <div className="col-md-4 mb-4" key={favCar._id}>
                             <div className="card">
                                 <img src={favCar.car.images[0].url} className="card-img-top" alt={`${favCar.car.brand} ${favCar.car.model}`} />
-                                <div className="card-body">
-                                    <Link to={`/car/info/${favCar.car._id}`} ><h5 className="card-title">{favCar.car.brand} {favCar.car.model}</h5></Link>
-                                    <p className="card-text">{favCar.car.description}</p>
-                                    <p className="card-text">{favCar.car.description}</p>
+                                <div className="card-body d-flex align-items-center justify-content-between">
+                                    <Link to={`/car/info/${favCar.car._id}`} style={{textDecoration: "none"}} ><h5 className="card-title m-0">{favCar.car.brand} {favCar.car.model}</h5></Link>
                                     <button className="btn btn-danger" onClick={() => handleDeleteFavorite(favCar._id)}>
-                                        <i className="fas fa-trash-alt"></i> Remove from Favorites
+                                        <i className="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
                             </div>

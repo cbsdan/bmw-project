@@ -296,6 +296,7 @@ const Home = () => {
     <>
       <main id="home">
         <div>
+          <div className="main-bg"></div>
           <h1 className="d-none d-md-flex">
             Welcome to
             <span className="text-warning">&nbsp;Borrow My Wheels</span>
@@ -733,11 +734,9 @@ const Home = () => {
                             ₱{car.pricePerDay} per day
                           </strong>
                         </p>
-                        {car.isAutoApproved && (
-                          <span className="badge badge-success mt-2">
-                            Auto Approved
+                          <span className={`approbal-label badge badge-${car?.isAutoApproved ? "success" : "danger"} mt-2`}>
+                            {car?.isAutoApproved ? "Auto Approved" : "Not Auto Approved"}
                           </span>
-                        )}
                       </div>
                     </div>
                   </li>
