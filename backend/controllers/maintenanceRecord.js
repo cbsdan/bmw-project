@@ -138,3 +138,36 @@ exports.deleteRecord = async (req, res) => {
   }
 };
 
+exports.getMaintenanceCostVsRentalIncome = async (req, res) => {
+  try {
+      const cars = await Cars.find();
+
+      const carData = await Promise.all(
+          cars.map(async (car) => {
+              // Calculate total maintenance cost for the car
+              const maintenanceRecords = await MaintenanceRecord.find({ car: car._id });
+              const totalMaintenanceCost = maintenanceRecords.reduce((total, record) => total + record.cost, 0);
+
+              // Calculate total rental income for the car
+              const rentals = await Rental.find({ car: car._id, status: 'Returned' });
+              const totalRentalIncome = rentals.reduce((total, rental) => {
+                  const daysRented = Math.ceil(
+                      (new Date(rental.returnDate) - new Date(rental.pickUpDate)) / (1000 * 60 * 60 * 24)
+                  );
+                  return total + (daysRented * car.pricePerDay);
+              }, 0);
+
+              return {
+                  carModel: car.model, // Assuming `model` is a field in the Car schema
+                  totalMaintenanceCost,
+                  totalRentalIncome,
+              };
+          })
+      );
+
+      res.status(200).json(carData);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to fetch maintenance cost vs. rental income data' });
+  }
+};

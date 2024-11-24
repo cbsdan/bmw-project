@@ -291,15 +291,12 @@ exports.getCarsByUserId = async (req, res) => {
 
 exports.getAllCarsInfinite = async (req, res) => {
   try {
-    // Get the page number and results per page from query string, with default values
-    const page = parseInt(req.query.page) || 1; // default to page 1
-    const resPerPage = parseInt(req.query.resPerPage) || 10; // default to 10 results per page
-    const skip = (page - 1) * resPerPage; // calculate how many records to skip
+    const page = parseInt(req.query.page) || 1; 
+    const resPerPage = parseInt(req.query.resPerPage) || 10; 
+    const skip = (page - 1) * resPerPage;
 
-    // Fetch the cars with pagination
-    const cars = await Cars.find({isActive: true}).skip(skip).limit(resPerPage);
+    const cars = await Cars.find({isActive: true}).populate("owner").skip(skip).limit(resPerPage);
 
-    // Add images to each car
     const carsWithImages = cars.map((car) => {
       return {
         ...car.toObject(),
@@ -307,16 +304,14 @@ exports.getAllCarsInfinite = async (req, res) => {
       };
     });
 
-    // Get total number of cars for pagination
-    const totalCars = await Cars.countDocuments(); // count the total number of cars
-    const totalPages = Math.ceil(totalCars / resPerPage); // calculate total pages
+    const totalCars = await Cars.countDocuments(); 
+    const totalPages = Math.ceil(totalCars / resPerPage);
 
-    // Send the response with cars
     res.status(200).json({
       cars: carsWithImages,
       currentPage: page,
       totalCars,
-      totalPages, // Include totalPages in the response
+      totalPages, 
     });
   } catch (error) {
     console.error("Error fetching cars:", error);
@@ -331,7 +326,7 @@ exports.filterCars = async (req, res) => {
     const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
     console.log("Query Parameters:", req.query);
 
-    let apiFeatures = new APIFeatures(Cars.find({ isActive: true }), req.query).filter().search();
+    let apiFeatures = new APIFeatures(Cars.find({ isActive: true }).populate("owner"), req.query).filter().search();
 
     if (pickUpLocation) {
       apiFeatures.query = apiFeatures.query.find({
@@ -432,4 +427,24 @@ exports.filterCars = async (req, res) => {
   }
 };
 
+exports.getCarAvailability = async (req, res) => {
+  try {
+      const carCounts = await Cars.aggregate([
+          {
+              $group: {
+                  _id: "$vehicleType",
+                  count: { $sum: 1 }
+              }
+          }
+      ]);
 
+      const data = carCounts.map(item => ({
+          category: item._id,
+          count: item.count
+      }));
+
+      res.status(200).json({ success: true, availability: data });
+  } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+  }
+};

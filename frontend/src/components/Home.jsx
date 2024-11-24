@@ -21,9 +21,9 @@ const Home = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
   const [favoriteCars, setFavoriteCars] = useState([]);
-  const doneTypingInterval = 1000; // 1 second delay for typing
+  const doneTypingInterval = 1000; 
   const [rating, setRating] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1); // Current page state for pagination
+  const [currentPage, setCurrentPage] = useState(1); 
   const [hasMore, setHasMore] = useState(true);
   const [totalPages, setTotalPages] = useState();
   const firstFetchDone = useRef(false);
@@ -77,42 +77,37 @@ const Home = () => {
         throw new Error("Failed to fetch total pages");
       }
       const data = await response.json();
-      console.log("Total Pages:", data.totalPages); // Log the total pages
-      setTotalPages(data.totalPages); // Update the total pages state
+      console.log("Total Pages:", data.totalPages); 
+      setTotalPages(data.totalPages); 
     } catch (error) {
       console.error("Error fetching total pages:", error);
     }
   };
   // fetchAllCars function
   const fetchAllCars = async (page) => {
-    if (isLoading || page > totalPages) return; // Prevent redundant fetches
+    if (isLoading || page > totalPages) return; 
     try {
-      console.log(`Fetching page ${page}...`); // Log the current page being fetched
-
+      console.log(`Fetching page ${page}...`); 
       const response = await fetch(
-        // Set loading state after the delay
         `${import.meta.env.VITE_API}/Cars/infinite?page=${page}&resPerPage=10`
       );
       if (!response.ok) throw new Error("Failed to fetch cars");
 
       const data = await response.json();
 
-      // Debugging: Log fetched data
       console.log("Fetched data:", data);
       console.log(`Cars on page ${page}:`, data.cars);
       console.log(
         `Pagination Info -> Current Page: ${data.currentPage}, Total Pages: ${data.totalPages}`
       );
 
-      // Update state with fetched cars and pagination info
       setCars((prevCars) => [...prevCars, ...data.cars]);
       setCurrentPage(data.currentPage);
       setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching cars:", error);
     } finally {
-      // Reset loading state and trigger re-render
-      setIsLoading(false); // Hide the loading spinner after the fetch is complete
+      setIsLoading(false); 
     }
   };
 
@@ -159,29 +154,27 @@ const Home = () => {
 
   useEffect(() => {
     const handleScroll = async () => {
-      // Prevent triggering multiple fetches while already loading
       if (isLoading) return;
 
-      const footer = document.querySelector("footer"); // Get the footer element
+      const footer = document.querySelector("footer"); 
       const footerOffset = footer
         ? footer.offsetTop
-        : document.documentElement.scrollHeight; // Get footer position
-      const footerHeight = footer ? footer.offsetHeight : 0; // Get footer height
+        : document.documentElement.scrollHeight; 
+      const footerHeight = footer ? footer.offsetHeight : 0; 
       const isBottom =
         window.innerHeight + document.documentElement.scrollTop >=
-        footerOffset - footerHeight - 100; // Check if we are 100px from the footer
+        footerOffset - footerHeight - 100; 
 
       if (
         isBottom &&
-        !isLoading && // Ensure that isLoading is false before triggering fetch
+        !isLoading && 
         hasMore &&
-        currentPage < totalPages // Prevent fetching if already at the last page
+        currentPage < totalPages
       ) {
-        // Set loading state to true
+   
         setIsLoading(true);
 
-        // Introduce a delay to simulate loading
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1500ms = 1.5 seconds
+        await new Promise((resolve) => setTimeout(resolve, 1000)); 
 
         console.log(
           `Reached the bottom of page ${currentPage}. Fetching page ${
@@ -716,14 +709,17 @@ const Home = () => {
                           </li>
                         </ul>
 
-                        <p className="card-description">
+                        <p className="card-description p-0 m-0">
                           Description: {car.description}
                         </p>
-                        <p className="card-terms">
+                        <p className="card-terms p-0 m-0">
                           Terms and Conditions: {car.termsAndConditions}
                         </p>
-                        <p className="card-location">
+                        <p className="card-location p-0 m-0">
                           Pick-up Location: {car.pickUpLocation}
+                        </p>
+                        <p className="card-location p-0 m-0">
+                          Owner: {car.owner?.firstName} {car.owner?.lastName}
                         </p>
 
                         <div className="card-price-wrapper">
@@ -742,12 +738,17 @@ const Home = () => {
                             Auto Approved
                           </span>
                         )}
+                        {car.isActive && (
+                          <span className={car.isActive ? "badge badge-success" : "badge badge-danger"}>
+                            {car.isActive ? "Active" : "Not Active"}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </li>
                 ))
               ) : (
-                <p>No cars available</p> // Show this if there are no cars initially
+                <p>No cars available</p> 
               )}
             </ul>
             <div className="d-flex align-items-center justify-content-center py-3">

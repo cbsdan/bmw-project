@@ -12,6 +12,7 @@ const {
     getCarsByUserId,
     getAllCarsInfinite,
     filterCars,
+    getCarAvailability
 } = require('../controllers/carControllers'); 
 
 
@@ -23,5 +24,6 @@ router.get('/my-cars/:userId', isAuthenticatedUser, getCarsByUserId);
 router.post('/CreateCar', isAuthenticatedUser, upload.array('images', 10), createCar);
 router.route('/Cars/:id' ).put(isAuthenticatedUser, upload.array('images', 10), updateCar).delete(isAuthenticatedUser, deleteCar);
 
+router.get('/car-availability', getCarAvailability);
 
 module.exports = router;

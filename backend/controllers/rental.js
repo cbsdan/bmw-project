@@ -411,6 +411,46 @@ const getRentalsByCarId = async (req, res) => {
   }
 };
 
+const getMonthlyIncome = async (req, res) => {
+  try {
+      const rentals = await Rental.find({ status: 'Returned' })
+          .populate('car', 'pricePerDay model');
+
+      if (rentals.length === 0) {
+          return res.status(200).json({ message: 'No transactions found', incomeData: [] });
+      }
+
+      const monthlyIncome = {};
+
+      rentals.forEach(rental => {
+          const daysRented = Math.ceil(
+              (new Date(rental.returnDate) - new Date(rental.pickUpDate)) / (1000 * 60 * 60 * 24)
+          );
+          const totalIncome = daysRented * rental.car.pricePerDay;
+          const estimatedIncome = totalIncome * 0.15; 
+
+          const rentalDate = new Date(rental.pickUpDate);
+          const monthYearKey = `${rentalDate.getFullYear()}-${rentalDate.getMonth() + 1}`; 
+
+          if (!monthlyIncome[monthYearKey]) {
+              monthlyIncome[monthYearKey] = { totalIncome: 0, month: monthYearKey, estimatedIncome: 0 };
+          }
+
+          monthlyIncome[monthYearKey].estimatedIncome += estimatedIncome; 
+      });
+
+      const incomeDataArray = Object.values(monthlyIncome).map(({ estimatedIncome, month }) => ({
+          estimatedIncome,
+          month,
+      }));
+
+      res.status(200).json(incomeDataArray);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to fetch income data' });
+  }
+};
+
 module.exports = {
   createRent,
   updateRent,
@@ -420,4 +460,5 @@ module.exports = {
   myRentals,
   myCarRental,
   getRentalsByCarId,
+  getMonthlyIncome
 };
