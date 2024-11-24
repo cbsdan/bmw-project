@@ -1,7 +1,8 @@
 const Review = require("../models/Review");
 const Rental = require("../models/Rental");
+const Filter = require('bad-words');
 const cloudinary = require("cloudinary").v2;
-
+ 
 const getAllReview = async (req, res) => {
   try {
     const reviews = await Review.find()
@@ -61,7 +62,9 @@ const getReview = async (req, res) => {
 
 const createReview = async (req, res) => {
   try {
-    const { rental, renter, rating, comment } = req.body;
+    const { rental, renter, rating } = req.body;
+    let {comment} = req.body
+    
     const uploadedImages = await Promise.all(
       req.files.map((file) =>
         cloudinary.uploader.upload(file.path, {
@@ -75,6 +78,10 @@ const createReview = async (req, res) => {
       public_id: result.public_id,
       url: result.secure_url,
     }));
+
+    const filter = new Filter();
+    const filteredComment = filter.clean(comment);
+    comment = filteredComment
     const review = new Review({
       rental,
       renter,
@@ -107,8 +114,11 @@ const updateReview = async (req, res) => {
 
     const updates = {};
     if (rating) updates.rating = rating;
-    if (comment) updates.comment = comment;
-
+    if (comment) {
+      const filter = new Filter();
+      const filteredComment = filter.clean(comment);
+      updates.comment = filteredComment;
+    }
     const review = await Review.findById(reviewId);
     if (!review) return res.status(404).json({ message: "Review not found" });
 
