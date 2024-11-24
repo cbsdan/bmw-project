@@ -134,13 +134,13 @@ function SignWithGoogle({ method }) {
 
   return (
     <div>
-      <p className="continue-p">--Or continue with--</p>
+      <p className="continue-p text-center">--Or continue with--</p>
       <div
-        className="btn btn-primary"
+        className=" google-sign"
         style={{ display: "flex", justifyContent: "center", cursor: "pointer" }}
         onClick={googleLogin}
       >
-        {method} with Google
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" className="google-logo me-2"/> {method} with Google
       </div>
     </div>
   );

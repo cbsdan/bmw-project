@@ -1,12 +1,14 @@
 :root {
-    --headerSize: 68px
+    --headerSize: 68px;
+    --primary-color: #1F509A
 }
 #headerNav {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100
+    z-index: 100;
+    background-color: var(var(--primary-color));
 }
 body {
     padding-top: 67.54px
@@ -646,8 +648,20 @@ text-transform: uppercase;
 }
 
 
+.google-logo {
+    width: 35px;
+    height: 35px;
+}
 
-
+.google-sign {
+    border-radius: 50px;
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    border: 1px solid black;
+    padding: 5px 20px;
+    width: 250px
+}
 
 /*-----------------------------------*\
 #FEATURED CAR

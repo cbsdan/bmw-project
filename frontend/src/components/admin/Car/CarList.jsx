@@ -124,7 +124,7 @@ const CarList = () => {
   }, [selectedCarIds]);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 250 },
+    { field: "id", headerName: "ID", width: 250, headerClassName: "header-col1"},
     { field: "model", headerName: "Model", width: 200 },
     { field: "brand", headerName: "Brand", width: 200 },
     { field: "vehicleType", headerName: "Vehicle Type", width: 150 },
@@ -263,6 +263,18 @@ const CarList = () => {
                   "& .MuiCheckbox-root": {
                     color: "#891652",
                   },
+                  "& .MuiToolbar-root p": {
+                    margin: "0 !important"
+                  },
+                  "& .MuiDataGrid-columnHeaderTitleContainer": {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                  "& .MuiDataGrid-columnHeaderTitleContainer": {
+                    fontWeight: "bold"
+                  },
+
                 }}
               />
             </Box>

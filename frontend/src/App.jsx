@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import Register from "./components/Register/index";
 import Login from "./components/login/index";
@@ -26,6 +26,7 @@ import Profile from "./components/user/Profile";
 import { generateToken, messaging } from "./config/firebase-config";
 import { onMessage } from "firebase/messaging";
 import toast, { Toaster } from "react-hot-toast";
+import DashboardLayoutBasic from "./components/DashboardLayout";
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,10 @@ function App() {
       toast(payload.notification.body);
     });
   }, []);
+
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   const AdminRoutes = () => {
     if (!isAdmin()) {
       return <Navigate to="/" />;
@@ -57,6 +62,7 @@ function App() {
 
         <Route path="/rentals" element={<RentalList />} />
         <Route path="/reviews" element={<ReviewList />} />
+        <Route path="/dashboard-v2" element={<DashboardLayoutBasic/>} />
       </Routes>
     );
   };
