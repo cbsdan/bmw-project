@@ -22,6 +22,7 @@ const Header = () => {
   useEffect(() => {
     setUser(getUser());
   }, []);
+
   return (
     <>
       <nav id="headerNav" className="navbar row m-0 bg-warning mb-3">
@@ -29,10 +30,11 @@ const Header = () => {
           <div className="navbar-brand pl-5">
             <Link
               to="/"
-              className="text-dark"
+              className="text-dark d-flex align-items-center gap-3"
               style={{ textDecoration: "none" }}
             >
-              <h3>BMW</h3>
+              <img src="/images/logo.png" width="50"/>
+              <span className="fs-3">BMW</span >
             </Link>
           </div>
         </div>

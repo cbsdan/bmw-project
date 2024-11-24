@@ -21,9 +21,9 @@ const Home = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
   const [favoriteCars, setFavoriteCars] = useState([]);
-  const doneTypingInterval = 1000; 
+  const doneTypingInterval = 1000;
   const [rating, setRating] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1); 
+  const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalPages, setTotalPages] = useState();
   const firstFetchDone = useRef(false);
@@ -40,7 +40,7 @@ const Home = () => {
   const handleRatingChange = (newRating) => {
     if (newRating === rating) {
       formData.rating = "";
-      setRating(0)
+      setRating(0);
     } else {
       formData.rating = newRating;
 
@@ -77,17 +77,17 @@ const Home = () => {
         throw new Error("Failed to fetch total pages");
       }
       const data = await response.json();
-      console.log("Total Pages:", data.totalPages); 
-      setTotalPages(data.totalPages); 
+      console.log("Total Pages:", data.totalPages);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching total pages:", error);
     }
   };
   // fetchAllCars function
   const fetchAllCars = async (page) => {
-    if (isLoading || page > totalPages) return; 
+    if (isLoading || page > totalPages) return;
     try {
-      console.log(`Fetching page ${page}...`); 
+      console.log(`Fetching page ${page}...`);
       const response = await fetch(
         `${import.meta.env.VITE_API}/Cars/infinite?page=${page}&resPerPage=10`
       );
@@ -107,12 +107,12 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching cars:", error);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   const fetchFilteredCars = async (signal) => {
-    console.log(formData)
+    console.log(formData);
     try {
       setIsLoading(true);
 
@@ -156,25 +156,19 @@ const Home = () => {
     const handleScroll = async () => {
       if (isLoading) return;
 
-      const footer = document.querySelector("footer"); 
+      const footer = document.querySelector("footer");
       const footerOffset = footer
         ? footer.offsetTop
-        : document.documentElement.scrollHeight; 
-      const footerHeight = footer ? footer.offsetHeight : 0; 
+        : document.documentElement.scrollHeight;
+      const footerHeight = footer ? footer.offsetHeight : 0;
       const isBottom =
         window.innerHeight + document.documentElement.scrollTop >=
-        footerOffset - footerHeight - 100; 
+        footerOffset - footerHeight - 100;
 
-      if (
-        isBottom &&
-        !isLoading && 
-        hasMore &&
-        currentPage < totalPages
-      ) {
-   
+      if (isBottom && !isLoading && hasMore && currentPage < totalPages) {
         setIsLoading(true);
 
-        await new Promise((resolve) => setTimeout(resolve, 1000)); 
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         console.log(
           `Reached the bottom of page ${currentPage}. Fetching page ${
@@ -245,46 +239,50 @@ const Home = () => {
   };
 
   const handleFavoriteClick = async (car) => {
-    const favoriteCar = favoriteCars.find(
-      (favCar) => favCar.car._id === car._id
-    );
-    const config = {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-        "Content-Type": "application/json",
-      },
-    };
-    const user = getUser();
+    if (getUser()) {
+      const favoriteCar = favoriteCars.find(
+        (favCar) => favCar.car._id === car._id
+      );
+      const config = {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          "Content-Type": "application/json",
+        },
+      };
+      const user = getUser();
 
-    try {
-      if (favoriteCar) {
-        await axios.delete(
-          `${import.meta.env.VITE_API}/favorite-car/${favoriteCar._id}`,
-          config
-        );
-        setFavoriteCars(
-          favoriteCars.filter((favCar) => favCar._id !== favoriteCar._id)
-        );
-        toast.success(`${car.brand} ${car.model} removed from favorites`, {
-          position: "bottom-right",
-        });
-      } else {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API}/favorite-car/`,
-          {
-            user: user._id,
-            car: car._id,
-          },
-          config
-        );
-        setFavoriteCars([...favoriteCars, response.data.favoriteCar]);
-        toast.success(`${car.brand} ${car.model} added to favorites`, {
+      try {
+        if (favoriteCar) {
+          await axios.delete(
+            `${import.meta.env.VITE_API}/favorite-car/${favoriteCar._id}`,
+            config
+          );
+          setFavoriteCars(
+            favoriteCars.filter((favCar) => favCar._id !== favoriteCar._id)
+          );
+          toast.success(`${car.brand} ${car.model} removed from favorites`, {
+            position: "bottom-right",
+          });
+        } else {
+          const response = await axios.post(
+            `${import.meta.env.VITE_API}/favorite-car/`,
+            {
+              user: user._id,
+              car: car._id,
+            },
+            config
+          );
+          setFavoriteCars([...favoriteCars, response.data.favoriteCar]);
+          toast.success(`${car.brand} ${car.model} added to favorites`, {
+            position: "bottom-right",
+          });
+        }
+      } catch (error) {
+        console.error("Error updating favorite car:", error);
+        toast.error("Error updating favorite car.", {
           position: "bottom-right",
         });
       }
-    } catch (error) {
-      console.error("Error updating favorite car:", error);
-      toast.error("Error updating favorite car.", { position: "bottom-right" });
     }
   };
 
@@ -307,7 +305,7 @@ const Home = () => {
             </h2>
             <ul className="get-start-list">
               <li>
-                <div className="get-start-card">
+                <div className="get-start-card light-blue-bg">
                   <div className="card-icon icon-1">
                     <i className="fas fa-user-plus"></i>
                   </div>
@@ -326,7 +324,7 @@ const Home = () => {
                 </div>
               </li>
               <li>
-                <div className="get-start-card">
+                <div className="get-start-card light-blue-bg">
                   <div className="card-icon icon-2">
                     <i className="fas fa-car"></i>
                   </div>
@@ -345,7 +343,7 @@ const Home = () => {
                 </div>
               </li>
               <li>
-                <div className="get-start-card">
+                <div className="get-start-card light-blue-bg">
                   <div className="card-icon icon-3">
                     <i className="fas fa-handshake"></i>
                   </div>
@@ -362,7 +360,7 @@ const Home = () => {
                 </div>
               </li>
               <li>
-                <div className="get-start-card">
+                <div className="get-start-card light-blue-bg">
                   <div className="card-icon icon-4">
                     <i className="fas fa-credit-card"></i>
                   </div>
@@ -455,7 +453,7 @@ const Home = () => {
 
                     <Grid container spacing={4}>
                       <Grid item xs={12} sm={6} md={4}>
-                        <Card>
+                        <Card className="light-blue-bg">
                           <CardMedia
                             component="img"
                             image="../../images/blog-1.jpg"
@@ -483,7 +481,7 @@ const Home = () => {
                       </Grid>
 
                       <Grid item xs={12} sm={6} md={4}>
-                        <Card>
+                        <Card className="light-blue-bg">
                           <CardMedia
                             component="img"
                             image="../../images/blog-1.jpg"
@@ -518,7 +516,7 @@ const Home = () => {
         </section>
         <hr />
         <div className="hero-banner">
-          <video autoPlay loop muted playsInline className="video-background">
+          <video autoPlay loop muted playsInline className="video-background d-none d-lg-block">
             <source src="../../images/background-video.mp4" type="video/mp4" />
             <p>Video playback is not supported by your browser.</p>
           </video>
@@ -623,12 +621,6 @@ const Home = () => {
                 </label>
               </div>
             </form>
-            <div className="title-wrapper">
-              <h2 className="h2 section-title">Car Rentals</h2>
-              <Link to="/admin/create-car" className="btn btn-success">
-                <span>+ Create New Rental Car</span>
-              </Link>
-            </div>
             <div>
               {isLoading && currentPage === 1 ? ( // Show loading spinner only when fetching the first 10 cars
                 <p>Loading cars...</p>
@@ -639,29 +631,34 @@ const Home = () => {
                 cars.map((car, index) => (
                   <li key={index}>
                     <div className="featured-car-card">
-                      <button
-                        className={`favorite-btn ${
-                          isFavorite(car._id) ? "text-danger" : ""
-                        }`}
-                        onClick={() => handleFavoriteClick(car)}
-                      >
-                        <i className="fa fa-heart"></i>
-                      </button>
+                      {getUser() ? (
+                        <button
+                          className={`favorite-btn px-2 fs-3 ${
+                            isFavorite(car._id) ? "text-danger" : ""
+                          }`}
+                          onClick={() => handleFavoriteClick(car)}
+                        >
+                          <i className="fa fa-heart"></i>
+                        </button>
+                      ) : (
+                        <></>
+                      )}
                       <figure className="card-banner">
-                        <img
-                          src={car.images[0]}
-                          alt={`${car.brand} ${car.model} ${car.year}`}
-                          loading="lazy"
-                          width="440"
-                          height="300"
-                          className="w-100"
-                        />
+                        <Link to={`/car/info/${car._id}`}>
+                          <img
+                            src={car.images[0]}
+                            alt={`${car.brand} ${car.model} ${car.year}`}
+                            loading="lazy"
+                            style={{ maxWidth: "440px", width: "100%"}}
+                            height="300"
+                          />
+                        </Link>
                       </figure>
 
-                      <div className="card-content">
+                      <div className="card-content pt-1">
                         <div className="card-title-wrapper">
                           <h3 className="h3 card-title">
-                            <Link to={`/car/info/${car._id}`}>
+                            <Link to={`/car/info/${car._id}`} style={{textDecoration: "none"}}>
                               {`${car.model} ${car.brand}`}
                             </Link>
                           </h3>
@@ -670,7 +667,7 @@ const Home = () => {
                           </data>
                         </div>
 
-                        <ul className="card-list">
+                        <ul className="card-list px-0">
                           <li className="card-list-item">
                             <ion-icon name="people-outline"></ion-icon>
                             <span className="card-item-text">
@@ -709,38 +706,19 @@ const Home = () => {
                           </li>
                         </ul>
 
-                        <p className="card-description p-0 m-0">
-                          Description: {car.description}
-                        </p>
-                        <p className="card-terms p-0 m-0">
-                          Terms and Conditions: {car.termsAndConditions}
+                        <p className="card-location p-0 m-0 mb-2">
+                          <i className="fa fa-location-dot me-2"></i>{car.pickUpLocation}
                         </p>
                         <p className="card-location p-0 m-0">
-                          Pick-up Location: {car.pickUpLocation}
-                        </p>
-                        <p className="card-location p-0 m-0">
-                          Owner: {car.owner?.firstName} {car.owner?.lastName}
+                          <i className="fa fa-user me-2"></i> {car.owner?.firstName} {car.owner?.lastName}
                         </p>
 
-                        <div className="card-price-wrapper">
-                          <p className="card-price">
-                            <strong>₱{car.pricePerDay} / day</strong>
+                          <p className="card-price m-0 py-2 text">
+                            <strong className="fw-bold">₱{car.pricePerDay} per day</strong>
                           </p>
-                          <button
-                            className="btn fav-btn"
-                            aria-label="Add to favourite list"
-                          >
-                            <ion-icon name="heart-outline"></ion-icon>
-                          </button>
-                        </div>
                         {car.isAutoApproved && (
-                          <span className="badge badge-success">
+                          <span className="badge badge-success mt-2">
                             Auto Approved
-                          </span>
-                        )}
-                        {car.isActive && (
-                          <span className={car.isActive ? "badge badge-success" : "badge badge-danger"}>
-                            {car.isActive ? "Active" : "Not Active"}
                           </span>
                         )}
                       </div>
@@ -748,7 +726,7 @@ const Home = () => {
                   </li>
                 ))
               ) : (
-                <p>No cars available</p> 
+                <p>No cars available</p>
               )}
             </ul>
             <div className="d-flex align-items-center justify-content-center py-3">
@@ -762,8 +740,7 @@ const Home = () => {
             {(currentPage === totalPages || !hasMore) && !isLoading && (
               <Typography
                 variant="h5"
-                sx={{ color: "blue" }}
-                className="text-center py-3"
+                className="text-center py-3 text-primary no-more-label"
               >
                 No More Featured Cars To Load
               </Typography>

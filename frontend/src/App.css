@@ -11,9 +11,19 @@
     background-color: var(var(--primary-color));
 }
 body {
-    padding-top: 67.54px
-}
+    padding-top: 67.54px;
 
+
+}
+.light-blue-gradient-background {
+    background: url('./assets/images/light-blue-gradient.png') !important;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.light-blue-bg {
+    background-color: #D4EBF8 !important;
+}
 main#home {
     min-height: 80vh;
     padding: 10px;
@@ -164,6 +174,22 @@ main#home h1 {
     padding: 10px 20px;
     font-size: 16px;
 }
+.featured-car-card {
+    position: relative;
+}
+.favorite-btn {
+    position: absolute;
+    background: var(--gradient);
+    padding: 5px;
+    border-radius: 0 0 5px 0;
+}
+.card-price {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 7px 12px;
+}
+
 @keyframes pulse {
     0% {
         opacity: 1;
@@ -288,7 +314,7 @@ text-align: center; /* Ensure text is centered */
 --manatee: hsl(219, 14%, 60%);
 --white: hsl(0, 0%, 100%);
 
---gradient: linear-gradient(to top, var(--alice-blue-2), var(--alice-blue-3));
+--gradient: #D4EBF8;
 
 /**
     * typography
