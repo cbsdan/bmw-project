@@ -232,6 +232,20 @@ const CarFormModal = ({ show, handleClose, operation, carId }) => {
                 </div>
 
                 <div style={styles.formGroup}>
+                  <label>Display on Featured Cars:</label>
+                  <Field as="select" name="isActive" style={styles.select}>
+                    <option value="">Select Vehicle Type</option>
+                    <option value="true">Display</option>
+                    <option value="false">Do not display</option>
+                  </Field>
+                  <ErrorMessage
+                    name="isActive"
+                    component="div"
+                    className="text-danger"
+                  />
+                </div>
+                
+                <div style={styles.formGroup}>
                   <label>Seat Capacity:</label>
                   <Field
                     type="number"

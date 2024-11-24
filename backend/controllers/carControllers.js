@@ -297,7 +297,7 @@ exports.getAllCarsInfinite = async (req, res) => {
     const skip = (page - 1) * resPerPage; // calculate how many records to skip
 
     // Fetch the cars with pagination
-    const cars = await Cars.find().skip(skip).limit(resPerPage);
+    const cars = await Cars.find({isActive: true}).skip(skip).limit(resPerPage);
 
     // Add images to each car
     const carsWithImages = cars.map((car) => {
@@ -327,105 +327,109 @@ exports.getAllCarsInfinite = async (req, res) => {
 };
 
 exports.filterCars = async (req, res) => {
-    try {
-      const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
-      console.log("Query Parameters:", req.query);
+  try {
+    const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
+    console.log("Query Parameters:", req.query);
 
-      let apiFeatures = new APIFeatures(Cars.find(), req.query).filter().search();
+    let apiFeatures = new APIFeatures(Cars.find({ isActive: true }), req.query).filter().search();
 
-      if (pickUpLocation) {
-        apiFeatures.query = apiFeatures.query.find({
-          pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
-        });
-        console.log("Filter Applied for pickUpLocation:", pickUpLocation);
-      }
-      if (brand) {
-        apiFeatures.query = apiFeatures.query.find({
-          brand: { $regex: new RegExp(brand, "i") },
-        });
-        console.log("Filter Applied for brand:", brand);
-      }
-      if (transmission) {
-        apiFeatures.query = apiFeatures.query.find({
-          transmission: { $regex: new RegExp(transmission, "i") },
-        });
-        console.log("Filter Applied for transmission:", transmission);
-      }
-      if (pricePerDay) {
-        apiFeatures.query = apiFeatures.query
-          .where("pricePerDay")
-          .lte(Number(pricePerDay));
-        console.log("Filter Applied for pricePerDay:", pricePerDay);
-      }
-      if (year) {
-        apiFeatures.query = apiFeatures.query.where("year").lte(Number(year));
-        console.log("Filter Applied for year <=:", year);
-      }
-
-      let aggregatePipeline = [
-        { 
-          $match: apiFeatures.query._conditions 
-        },
-        {
-          $lookup: {
-            from: "rentals",
-            localField: "_id",
-            foreignField: "car",
-            as: "rentals",
-          },
-        },
-        {
-          $lookup: {
-            from: "reviews",
-            localField: "rentals._id",
-            foreignField: "rental",
-            as: "reviews",
-          },
-        },
-        {
-          $addFields: {
-            averageRating: { $avg: "$reviews.rating" },
-          },
-        },
-      ];
-
-      console.log("Aggregation Pipeline:", aggregatePipeline);
-
-      if (rating) {
-        aggregatePipeline.push({
-          $match: {
-            averageRating: { $gte: Number(rating) },
-          },
-        });
-        console.log("Filter Applied for rating >=:", rating);
-      }
-
-      const cars = await Cars.aggregate(aggregatePipeline);
-
-      console.log("Cars after aggregation:", cars);
-
-      const carsWithImages = cars.map((car) => {
-        console.log("Car with joined rentals and reviews:", car);
-        return {
-          ...car,
-          images: car.images.map((image) => image.url),
-        };
+    if (pickUpLocation) {
+      apiFeatures.query = apiFeatures.query.find({
+        pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
       });
-
-      console.log("Filtered Cars with Images:", carsWithImages);
-
-      res.status(200).json({
-        success: true,
-        count: carsWithImages.length,
-        cars: carsWithImages,
-      });
-    } catch (error) {
-      console.error("Error:", error.message);
-
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      console.log("Filter Applied for pickUpLocation:", pickUpLocation);
     }
+    if (brand) {
+      apiFeatures.query = apiFeatures.query.find({
+        brand: { $regex: new RegExp(brand, "i") },
+      });
+      console.log("Filter Applied for brand:", brand);
+    }
+    if (transmission) {
+      apiFeatures.query = apiFeatures.query.find({
+        transmission: { $regex: new RegExp(transmission, "i") },
+      });
+      console.log("Filter Applied for transmission:", transmission);
+    }
+    if (pricePerDay) {
+      apiFeatures.query = apiFeatures.query
+        .where("pricePerDay")
+        .lte(Number(pricePerDay));
+      console.log("Filter Applied for pricePerDay:", pricePerDay);
+    }
+    if (year) {
+      apiFeatures.query = apiFeatures.query.where("year").lte(Number(year));
+      console.log("Filter Applied for year <=:", year);
+    }
+
+    let aggregatePipeline = [
+      {
+        $match: { 
+          ...apiFeatures.query._conditions,  
+          isActive: true  
+        },
+      },
+      {
+        $lookup: {
+          from: "rentals",
+          localField: "_id",
+          foreignField: "car",
+          as: "rentals",
+        },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "rentals._id",
+          foreignField: "rental",
+          as: "reviews",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $avg: "$reviews.rating" },
+        },
+      },
+    ];
+
+    console.log("Aggregation Pipeline:", aggregatePipeline);
+
+    if (rating) {
+      aggregatePipeline.push({
+        $match: {
+          averageRating: { $gte: Number(rating) },
+        },
+      });
+      console.log("Filter Applied for rating >=:", rating);
+    }
+
+    const cars = await Cars.aggregate(aggregatePipeline);
+
+    console.log("Cars after aggregation:", cars);
+
+    const carsWithImages = cars.map((car) => {
+      console.log("Car with joined rentals and reviews:", car);
+      return {
+        ...car,
+        images: car.images.map((image) => image.url),
+      };
+    });
+
+    console.log("Filtered Cars with Images:", carsWithImages);
+
+    res.status(200).json({
+      success: true,
+      count: carsWithImages.length,
+      cars: carsWithImages,
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
+
 

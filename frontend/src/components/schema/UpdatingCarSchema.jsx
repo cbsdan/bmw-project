@@ -1,6 +1,8 @@
 import * as Yup from 'yup';
 
 const UpdatingCarSchema = Yup.object().shape({
+  isActive: Yup.boolean().required('This field is required'),
+  isAutoApproved: Yup.boolean().required('This field is required'),
   model: Yup.string()
     .required('Model is required'),
   brand: Yup.string()

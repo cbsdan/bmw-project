@@ -68,7 +68,9 @@ const createRent = async (req, res) => {
       return res.status(400).json({ message: "Car is currently on rental." });
     }
 
-    const rental = new Rental(req.body);
+    let rental = new Rental(req.body);
+    const carDetails = await Car.findById(car);
+    const renterDetails = await User.findById(renter);
 
     const validationError = rental.validateSync();
     if (validationError) {
@@ -81,14 +83,24 @@ const createRent = async (req, res) => {
         .json({ message: "Validation errors", errors: errorsArray });
     }
 
-    await rental.save();
+    let rentalStatus = status;
 
-    const carDetails = await Car.findById(car);
-    const renterDetails = await User.findById(renter);
+    if (!carDetails || !carDetails.isActive) {
+      return res
+        .status(400)
+        .json({ message: "Car is not active. Cannot rent now" });
+    }
+    if (carDetails.isAutoApproved == true) {
+      rentalStatus = "Confirmed";
+    }
 
     if (!carDetails || !renterDetails) {
       return res.status(400).json({ message: "Car or Renter not found" });
     }
+    
+
+    rental.status = rentalStatus;
+    await rental.save();
 
     const rentalDays = calculateRentalDays(pickUpDate, returnDate);
     const pricePerDay = carDetails.pricePerDay;
@@ -207,40 +219,43 @@ const createRent = async (req, res) => {
 };
 
 const updateRent = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const rental = await Rental.findByIdAndUpdate(id, req.body, { new: true }).populate("renter car");
-  
-      if (!rental) {
-          return res.status(404).json({ message: "Rental not found" });
-      }
-  
-      console.log("Rental:", rental);
-  
-      if (rental.renter && rental.renter.permissionToken) {
-        const payload = {
-          permissionToken: rental.renter.permissionToken,
-          title: "BMW Rental Status Notification",
-          body: `Hi! Your rental status of vehicle ${rental.car?.brand} ${rental.car?.model} has been ${rental.status}.`,
-        };
-  
-        try {
-          const notifResult = await sendNotification(payload);
-          console.log("Notification sent:", notifResult);
-        } catch (error) {
-          console.error("Error sending notification:", error.message);
-        }
-      } else {
-        console.log("No permission token found for renter.");
-      }
-  
-      res.json({ message: "Rental updated successfully", rental });
-    } catch (error) {
-      console.error("Error updating rental:", error.message);
-      res.status(500).json({ message: "Error updating rental", error: error.message });
+  try {
+    const { id } = req.params;
+    const rental = await Rental.findByIdAndUpdate(id, req.body, {
+      new: true,
+    }).populate("renter car");
+
+    if (!rental) {
+      return res.status(404).json({ message: "Rental not found" });
     }
-  };
-  
+
+    console.log("Rental:", rental);
+
+    if (rental.renter && rental.renter.permissionToken) {
+      const payload = {
+        permissionToken: rental.renter.permissionToken,
+        title: "BMW Rental Status Notification",
+        body: `Hi! Your rental status of vehicle ${rental.car?.brand} ${rental.car?.model} has been ${rental.status}.`,
+      };
+
+      try {
+        const notifResult = await sendNotification(payload);
+        console.log("Notification sent:", notifResult);
+      } catch (error) {
+        console.error("Error sending notification:", error.message);
+      }
+    } else {
+      console.log("No permission token found for renter.");
+    }
+
+    res.json({ message: "Rental updated successfully", rental });
+  } catch (error) {
+    console.error("Error updating rental:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error updating rental", error: error.message });
+  }
+};
 
 const deleteRent = async (req, res) => {
   try {
