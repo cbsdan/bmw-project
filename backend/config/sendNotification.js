@@ -1,6 +1,6 @@
 // sendNotification.js
 const { google } = require('googleapis'); 
-const serviceAccount = require('./firebase-adminsdk.json'); 
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 const axios = require("axios");
 
 const getFirebaseAccessToken = async () => {
