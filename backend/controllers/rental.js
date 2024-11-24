@@ -69,7 +69,7 @@ const createRent = async (req, res) => {
     }
 
     let rental = new Rental(req.body);
-    const carDetails = await Car.findById(car);
+    const carDetails = await Car.findById(car).populate("owner");
     const renterDetails = await User.findById(renter);
 
     const validationError = rental.validateSync();
@@ -173,11 +173,11 @@ const createRent = async (req, res) => {
             </tr>
             <tr>
             <td>Owner</td>
-            <td>${renterDetails.firstName} ${renterDetails.lastName}</td>
+            <td>${carDetails.owner?.firstName} ${carDetails.owner?.lastName}</td>
             </tr>
             <tr>
             <td>Owner Email Address</td>
-            <td>${renterDetails.email}</td>
+            <td>${carDetails.owner?.email}</td>
             </tr>
             <tr>
             <td>Pick Up Location</td>
