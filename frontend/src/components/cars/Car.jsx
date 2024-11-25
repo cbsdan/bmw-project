@@ -36,7 +36,6 @@ import {
   calculateRentalDays,
   errMsg,
 } from "../../utils/helper";
-import DialogCar from "./DialogCar";
 
 const Car = () => {
   const { id: carId } = useParams();
