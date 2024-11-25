@@ -323,90 +323,154 @@ exports.getAllCarsInfinite = async (req, res) => {
 
 exports.filterCars = async (req, res) => {
   try {
-    const { pickUpLocation, pricePerDay, year, brand, transmission, rating } = req.query;
+    const { pickUpLocation, pricePerDay, year, brand, transmission, rating } =
+      req.query;
     console.log("Query Parameters:", req.query);
 
-    let apiFeatures = new APIFeatures(Cars.find({ isActive: true }).populate("owner"), req.query).filter().search();
+    // Start by building the aggregation pipeline
+    let aggregatePipeline = [
+      {
+        $match: {
+          isActive: true,
+        },
+      },
+    ];
 
+    // Apply filters directly in the aggregation pipeline
     if (pickUpLocation) {
-      apiFeatures.query = apiFeatures.query.find({
-        pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
+      aggregatePipeline.push({
+        $match: {
+          pickUpLocation: { $regex: new RegExp(pickUpLocation, "i") },
+        },
       });
       console.log("Filter Applied for pickUpLocation:", pickUpLocation);
     }
+
     if (brand) {
-      apiFeatures.query = apiFeatures.query.find({
-        brand: { $regex: new RegExp(brand, "i") },
+      aggregatePipeline.push({
+        $match: {
+          brand: { $regex: new RegExp(brand, "i") },
+        },
       });
       console.log("Filter Applied for brand:", brand);
     }
+
     if (transmission) {
-      apiFeatures.query = apiFeatures.query.find({
-        transmission: { $regex: new RegExp(transmission, "i") },
+      aggregatePipeline.push({
+        $match: {
+          transmission: { $regex: new RegExp(transmission, "i") },
+        },
       });
       console.log("Filter Applied for transmission:", transmission);
     }
+
     if (pricePerDay) {
-      apiFeatures.query = apiFeatures.query
-        .where("pricePerDay")
-        .lte(Number(pricePerDay));
+      aggregatePipeline.push({
+        $match: {
+          pricePerDay: { $lte: Number(pricePerDay) },
+        },
+      });
       console.log("Filter Applied for pricePerDay:", pricePerDay);
     }
+
     if (year) {
-      apiFeatures.query = apiFeatures.query.where("year").lte(Number(year));
+      aggregatePipeline.push({
+        $match: {
+          year: { $lte: Number(year) },
+        },
+      });
       console.log("Filter Applied for year <=:", year);
     }
 
-    let aggregatePipeline = [
-      {
-        $match: { 
-          ...apiFeatures.query._conditions,  
-          isActive: true  
-        },
-      },
+    aggregatePipeline.push(
       {
         $lookup: {
           from: "rentals",
-          localField: "_id",
+          localField: "_id", 
           foreignField: "car",
           as: "rentals",
         },
       },
       {
+        $unwind: {
+          path: "$rentals",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $lookup: {
           from: "reviews",
-          localField: "rentals._id",
+          localField: "rentals._id", 
           foreignField: "rental",
           as: "reviews",
         },
       },
       {
-        $addFields: {
-          averageRating: { $avg: "$reviews.rating" },
+        $unwind: {
+          path: "$reviews",
+          preserveNullAndEmptyArrays: true, 
         },
       },
-    ];
-
-    console.log("Aggregation Pipeline:", aggregatePipeline);
+      {
+        $group: {
+          _id: "$_id",
+          make: { $first: "$make" }, 
+          model: { $first: "$model" },
+          transmission: { $first: "$transmission" }, 
+          pricePerDay: { $first: "$pricePerDay" },
+          year: { $first: "$year" },
+          seatCapacity: { $first: "$seatCapacity" },
+          fuel: { $first: "$fuel" },
+          displacement: { $first: "$displacement" },
+          mileage: { $first: "$mileage" },
+          description: { $first: "$description" },
+          pickUpLocation: { $first: "$pickUpLocation" },
+          termsAndConditions: { $first: "$termsAndConditions" },
+          vehicleType: { $first: "$vehicleType" }, 
+          images: { $first: "$images" }, 
+          rentalCount: { $sum: 1 }, 
+          totalRating: { $sum: "$reviews.rating" }, 
+          reviewCount: { $sum: 1 }, 
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $cond: {
+              if: { $gt: ["$reviewCount", 0] }, 
+              then: {
+                $round: [{ $divide: ["$totalRating", "$reviewCount"] }, 0],
+              }, 
+              else: 0, 
+            },
+          },
+          images: { $ifNull: ["$images", []] }, 
+        },
+      }
+    );
 
     if (rating) {
       aggregatePipeline.push({
         $match: {
-          averageRating: { $gte: Number(rating) },
+          averageRating: { $eq: Number(rating) }, 
         },
       });
-      console.log("Filter Applied for rating >=:", rating);
+      console.log("Filter Applied for exact rating =", rating);
     }
+
+    console.log("Aggregation Pipeline:", aggregatePipeline);
 
     const cars = await Cars.aggregate(aggregatePipeline);
 
     console.log("Cars after aggregation:", cars);
 
     const carsWithImages = cars.map((car) => {
-      console.log("Car with joined rentals and reviews:", car);
+      console.log("Car with average rating and images:", car);
       return {
         ...car,
-        images: car.images.map((image) => image.url),
+        images: Array.isArray(car.images)
+          ? car.images.map((image) => image.url)
+          : [], 
       };
     });
 
@@ -419,7 +483,6 @@ exports.filterCars = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error.message);
-
     res.status(500).json({
       success: false,
       message: error.message,

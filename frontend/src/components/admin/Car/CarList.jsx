@@ -270,10 +270,7 @@ const CarList = () => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                  },
-                  "& .MuiDataGrid-columnHeaderTitleContainer": {
-                    fontWeight: "bold"
-                  },
+                  }
 
                 }}
               />

@@ -270,7 +270,100 @@ const deleteRent = async (req, res) => {
   }
 };
 
-// Get all rental details
+const calculateSalesChart = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // If no startDate or endDate is provided, default to the current year
+    const currentDate = new Date();
+    const startOfRange = startDate
+      ? new Date(startDate)
+      : new Date(currentDate.getFullYear(), 0, 1);
+    const endOfRange = endDate
+      ? new Date(endDate)
+      : new Date(currentDate.getFullYear(), 11, 31);
+
+    const rentals = await Rental.find({
+      returnDate: { $gte: startOfRange, $lte: endOfRange },
+      status: "Returned",
+    }).populate("car");
+
+    const salesData = rentals.reduce((acc, rental) => {
+      const returnDate = rental.returnDate;
+      const dayKey = returnDate.toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
+
+      const totalPrice =
+        rental.car.pricePerDay *
+        calculateRentalDays(rental.pickUpDate, rental.returnDate);
+
+      if (!acc[dayKey]) {
+        acc[dayKey] = { day: dayKey, sales: 0 };
+      }
+      acc[dayKey].sales += totalPrice;
+
+      return acc;
+    }, {});
+
+    const salesChart = Object.values(salesData).sort(
+      (a, b) => new Date(a.day) - new Date(b.day)
+    );
+
+    // If no sales data found, return zero data for the full range
+    const daysInRange = [];
+    for (
+      let d = new Date(startOfRange);
+      d <= endOfRange;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const dayKey = d.toISOString().split("T")[0];
+      if (!salesData[dayKey]) {
+        daysInRange.push({ day: dayKey, sales: 0 });
+      } else {
+        daysInRange.push(salesData[dayKey]);
+      }
+    }
+
+    return res.status(200).json({ salesChart: daysInRange });
+  } catch (error) {
+    console.error("Error fetching sales data:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error, please try again later" });
+  }
+};
+const top3CarsController = async (req, res) => {
+  try {
+    const rentals = await Rental.find({ status: "Returned" }).populate("car");
+
+    const carRentalCount = {};
+
+    rentals.forEach((rental) => {
+      const carId = rental.car._id.toString(); 
+      if (!carRentalCount[carId]) {
+        carRentalCount[carId] = {
+          car: rental.car,
+          count: 0,
+          carName: `${rental.car.brand} ${rental.car.model}`, 
+        };
+      }
+      carRentalCount[carId].count++;
+    });
+
+    const carArray = Object.values(carRentalCount);
+
+    carArray.sort((a, b) => b.count - a.count);
+
+    const top3Cars = carArray.slice(0, 3);
+
+    return res.status(200).json({ top3Cars });
+  } catch (error) {
+    console.error("Error fetching top 3 cars:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error, please try again later" });
+  }
+};
+
 const getAllRentDetails = async (req, res) => {
   try {
     const rentals = await Rental.find()
@@ -291,7 +384,6 @@ const myRentals = async (req, res) => {
   try {
     const { renterId } = req.params;
 
-    // Fetch rentals first
     const rentals = await Rental.find({ renter: renterId })
       .populate({
         path: "car",
@@ -306,16 +398,13 @@ const myRentals = async (req, res) => {
         .json({ message: "No rentals found for this user" });
     }
 
-    // Fetch reviews only for this renter and the rental's ID
     const rentalsWithReviews = await Promise.all(
       rentals.map(async (rental) => {
-        // Fetch reviews where renter matches and rental ID matches
         const reviews = await Review.find({
           rental: rental._id,
           renter: renterId,
         });
 
-        // Calculate the average rating if reviews exist
         const averageRating = reviews.length
           ? reviews.reduce((sum, review) => sum + review.rating, 0) /
             reviews.length
@@ -323,8 +412,8 @@ const myRentals = async (req, res) => {
 
         return {
           ...rental.toObject(),
-          reviews, // Include reviews for each rental
-          averageRating, // Add average rating
+          reviews, 
+          averageRating, 
         };
       })
     );
@@ -460,5 +549,7 @@ module.exports = {
   myRentals,
   myCarRental,
   getRentalsByCarId,
-  getMonthlyIncome
+  getMonthlyIncome,
+  calculateSalesChart,
+  top3CarsController,
 };

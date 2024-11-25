@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { isAuthenticatedUser } = require("../middleware/auth");
+const { isAuthenticatedUser, isAdmin } = require("../middleware/auth");
 
 const {
   createRent,
@@ -11,7 +11,9 @@ const {
   myCarRental,
   deleteRent,
   getRentalsByCarId,
-  getMonthlyIncome
+  getMonthlyIncome,
+  calculateSalesChart,
+  top3CarsController,
 } = require("../controllers/rental");
 
 router.get("/rentals", isAuthenticatedUser, getAllRentDetails);
@@ -20,6 +22,8 @@ router.post("/createRental", isAuthenticatedUser, createRent);
 router.get('/estimated-income', getMonthlyIncome);
 router.get("/my-rentals/:renterId", isAuthenticatedUser, myRentals);
 router.get("/my-car-rentals/:ownerId", isAuthenticatedUser, myCarRental);
+router.get("/top3cars", isAdmin, top3CarsController);
+router.get("/sales", isAdmin, calculateSalesChart);
 router.get("/car-rentals/:carId", getRentalsByCarId);
 router
   .route("/rentals/:id")

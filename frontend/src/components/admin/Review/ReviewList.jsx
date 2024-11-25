@@ -7,6 +7,8 @@ import { getToken } from "../../../utils/helper";
 import Sidebar from "../Sidebar";
 import CarouselLayout from "../../layout/CarouselLayout";
 import { Link } from "react-router-dom";
+const { Filter } = await import("bad-words"); 
+
 const ReviewList = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,23 @@ const ReviewList = () => {
 
     fetchReviews();
   }, []);
+
+  
+  const badWords = new Filter();
+  const filterComment = (comment) => {
+    if (!comment) return null; 
+
+    if (/\*{2,}/.test(comment)) return null; 
+
+    const normalizedComment = comment
+      .replace(/[^a-zA-Z0-9 ]/g, "")
+      .toLowerCase();
+
+    const words = normalizedComment.split(" ");
+    const containsProfanity = words.some((word) => badWords.isProfane(word));
+
+    return containsProfanity ? null : comment; 
+  };
 
   const handleDelete = (reviewId) => {
     $('#confirmDeleteModal').modal('show');
@@ -107,7 +126,16 @@ const ReviewList = () => {
                 <td><Link to={`/car/info/${review.rental.car._id}`}>{`${review.rental.car.model} ${review.rental.car.brand}`}</Link></td>
                 <td>{`${review.renter.firstName} ${review.renter.lastName}`}</td>
                 <td>{review.rating}</td>
-                <td>{review.comment}</td>
+                <td>
+                  {review.comment}
+                {filterComment(review.comment) ? (
+                    <></>
+                  ) : (
+                    <span style={{ color: "red", fontWeight: "bold" }}>
+                      Warning: This comment contains inappropriate language.
+                    </span>
+                  )}
+                </td>
                 <td>
                   {review.images && review.images.length > 0 ? (
                     <Button

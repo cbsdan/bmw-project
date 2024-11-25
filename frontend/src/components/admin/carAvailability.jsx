@@ -1,4 +1,3 @@
-// components/CarAvailabilityChart.jsx
 import React, { useState, useEffect } from 'react';
 import { getToken } from '../../utils/helper';
 import axios from "axios";

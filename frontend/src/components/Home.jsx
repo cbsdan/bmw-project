@@ -89,7 +89,7 @@ const Home = () => {
     try {
       console.log(`Fetching page ${page}...`);
       const response = await fetch(
-        `${import.meta.env.VITE_API}/Cars/infinite?page=${page}&resPerPage=10`
+        `${import.meta.env.VITE_API}/Cars/infinite?page=${page}&resPerPage=9`
       );
       if (!response.ok) throw new Error("Failed to fetch cars");
 

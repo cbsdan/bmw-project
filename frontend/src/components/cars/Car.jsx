@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../layout/LoadingSpinner";
 import TextField from "@mui/material/TextField";
@@ -10,8 +10,11 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
 import { Table } from "react-bootstrap";
 import { Carousel } from "react-bootstrap";
+const { Filter } = await import("bad-words");
+
 import {
   Typography,
   FormControl,
@@ -33,6 +36,7 @@ import {
   calculateRentalDays,
   errMsg,
 } from "../../utils/helper";
+import DialogCar from "./DialogCar";
 
 const Car = () => {
   const { id: carId } = useParams();
@@ -68,6 +72,17 @@ const Car = () => {
     setPaymentMode(event.target.value);
   };
 
+  const calculateRental = () => {
+    try {
+      if (!pickupDate || !returnDate) {
+        return;
+      }
+      const days = calculateRentalDays(pickupDate, returnDate);
+      setRentalDays(days);
+    } catch (error) {
+      return;
+    }
+  };
   const handleDialogOpen = () => {
     try {
       if (!pickupDate || !returnDate) {
@@ -171,6 +186,22 @@ const Car = () => {
     }
   };
 
+  const badWords = new Filter();
+  const filterComment = (comment) => {
+    if (!comment) return null;
+
+    if (/\*{2,}/.test(comment)) return null;
+
+    const normalizedComment = comment
+      .replace(/[^a-zA-Z0-9 ]/g, "")
+      .toLowerCase();
+
+    const words = normalizedComment.split(" ");
+    const containsProfanity = words.some((word) => badWords.isProfane(word));
+
+    return containsProfanity ? null : comment;
+  };
+
   useEffect(() => {
     const fetchCarData = async () => {
       setLoading(true);
@@ -190,6 +221,7 @@ const Car = () => {
     fetchCarData();
     fetchCarRentals();
     fetchCarRating();
+    calculateRental();
   }, [carId]);
 
   let isCarOnRental = false;
@@ -246,7 +278,7 @@ const Car = () => {
               </Carousel.Item>
             )}
           </Carousel>
-          <div className="container mt-3" style={{position: "relative"}}>
+          <div className="container mt-3" style={{ position: "relative" }}>
             {error ? <Alert message={error} type="error" /> : <></>}
             <h1 className="dark-blue-text">
               {carData.brand} {carData.model} ({carData.year})
@@ -357,7 +389,10 @@ const Car = () => {
                   ) : isCarOnRental ? (
                     <h3>This car is currently on rental. Cannot Book Now.</h3>
                   ) : (
-                    <Card className="mt-3 p-3" style={{position: "sticky", top: "85px"}}>
+                    <Card
+                      className="mt-3 p-3"
+                      style={{ position: "sticky", top: "85px" }}
+                    >
                       <h2>Book Now:</h2>
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <Box display="flex" flexDirection="column" gap={2}>
@@ -386,7 +421,10 @@ const Car = () => {
                             labelId="payment-mode-label"
                             id="payment-mode"
                             value={paymentMode}
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              handleChange(e);
+                              calculateRental()
+                            }}
                             label="Mode of Payment"
                           >
                             <MenuItem value="" selected>
@@ -406,9 +444,25 @@ const Car = () => {
                           >
                             Book
                           </Button>
-                          <div className="d-flex align-items-center justify-content-between">
-                            <p className="fs-5">a day</p>
-                            <p className="fs-5 fw-bold">₱{carData.pricePerDay}</p>
+                          <div className="">
+                            <div className="d-flex align-items-center justify-content-between">
+                              <p className="fs-5 m-0">Per day</p>
+                              <p className="fs-5 fw-bold m-0">
+                                ₱{carData.pricePerDay}
+                              </p>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between">
+                              <p className="fs-5 m-0">Rental Days</p>
+                              <p className="fs-5 fw-bold m-0">
+                                {rentalDays || 0}
+                              </p>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between border-top mt-2 py-1">
+                              <p className="fs-5 m-0 fw-bold">Total</p>
+                              <p className="fs-5 fw-bold m-0">
+                                ₱{(rentalDays || 0) * carData.pricePerDay}
+                              </p>
+                            </div>
                           </div>
                         </Box>
                       </LocalizationProvider>
@@ -429,56 +483,61 @@ const Car = () => {
               <div className="mt-5">
                 <h3 className="pb-3 dark-blue-text">Car Rating</h3>
 
-                  {carRating.map((rating) => (
-                    <>
-                      <div className="row py-3 ">
-                        <div class="col-12 col-md-4 row gap-2 pb-3 border-bottom">
-                          <div className="col-12 d-flex align-items-center justify-content-start gap-2">
-                            <div className="">
-                              <img
-                                src={`${rating.renter.avatar?.url || "/images/default-image.jpg"}`}
-                                alt="profile"
-                                style={{
-                                  borderRadius: "50%",
-                                  width: "60px",
-                                  height: "60px",
-                                }}
+                {carRating.map((rating) => (
+                  <>
+                    <div className="row py-3 ">
+                      <div class="col-12 col-md-4 row gap-2 pb-3 border-bottom">
+                        <div className="col-12 d-flex align-items-center justify-content-start gap-2">
+                          <div className="">
+                            <img
+                              src={`${rating.renter.avatar?.url || "/images/default-image.jpg"}`}
+                              alt="profile"
+                              style={{
+                                borderRadius: "50%",
+                                width: "60px",
+                                height: "60px",
+                              }}
+                            />
+                          </div>
+                          <div className="d-flex flex-column">
+                            <div>{rating.renter.firstName} *</div>
+                            <div>
+                              <Rating
+                                value={rating.rating}
+                                precision={0.5}
+                                readOnly
                               />
                             </div>
-                            <div className="d-flex flex-column">
-                              <div>
-                                {rating.renter.firstName}{" "}
-                                *
-                              </div>
-                              <div>
-                                <Rating
-                                  value={rating.rating}
-                                  precision={0.5}
-                                  readOnly
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-12">
-                            {rating.comment}
                           </div>
                         </div>
-                        <div class="col-12 col-md-4 pb-3 border-bottom">
-                          <Carousel>
-                            {rating.images.length > 0 ? (
-                              rating.images.map((image, idx) => (
-                                <Carousel.Item key={idx}>
-                                  <CardMedia
-                                    component="img"
-                                    alt={`Review Image ${idx + 1}`}
-                                    height="140"
-                                    image={image.url}
-                                    title={`Review Image ${idx + 1}`}
-                                  />
-                                </Carousel.Item>
-                              ))
-                            ) : (
-                              <Carousel.Item >
+                        <div className="col-12">
+                          {filterComment(rating.comment) ? (
+                            <></>
+                          ) : (
+                            <span style={{ color: "red", fontWeight: "bold" }}>
+                              Warning: This comment contains inappropriate
+                              language.
+                            </span>
+                          )}
+                          {rating.comment}
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-4 pb-3 border-bottom">
+                        <Carousel>
+                          {rating.images.length > 0 ? (
+                            rating.images.map((image, idx) => (
+                              <Carousel.Item key={idx}>
+                                <CardMedia
+                                  component="img"
+                                  alt={`Review Image ${idx + 1}`}
+                                  height="140"
+                                  image={image.url}
+                                  title={`Review Image ${idx + 1}`}
+                                />
+                              </Carousel.Item>
+                            ))
+                          ) : (
+                            <Carousel.Item>
                               <CardMedia
                                 component="img"
                                 alt={`No Review Image`}
@@ -486,12 +545,12 @@ const Car = () => {
                                 image={"/default-image.jpg"}
                               />
                             </Carousel.Item>
-                            )}
-                          </Carousel>
-                        </div>
+                          )}
+                        </Carousel>
                       </div>
-                    </>
-                  ))}
+                    </div>
+                  </>
+                ))}
               </div>
             )}
             {carRentals.length > 0 && (
@@ -522,81 +581,138 @@ const Car = () => {
               </div>
             )}
 
-            <Dialog
-              open={openDialog}
-              onClose={handleDialogClose}
-              fullWidth={true}
-              maxWidth="lg"
-            >
-              <DialogTitle className="w-100 text-center fs-4 fw-bold">
-                Confirm Your Booking
-              </DialogTitle>
-              <DialogContent className="w-100">
-                <Typography variant="h6">
-                  <strong>Car:</strong> {carData.brand} {carData.model} (
-                  {carData.year})
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Type:</strong> {carData.vehicleType}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Capacity:</strong> {carData.seatCapacity}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Fuel:</strong> {carData.fuel}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Transmission:</strong> {carData.transmission}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Fuel:</strong> {carData.fuel}
-                </Typography>
-                <hr />
-                <Typography variant="body1">
-                  <strong>Pick-up Date:</strong> {pickupDate?.toLocaleString()}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Return Date:</strong> {returnDate?.toLocaleString()}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Price Per Day:</strong> ₱{carData.pricePerDay}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Rental Day/s:</strong> {rentalDays}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Payment:</strong> ₱{rentalDays * carData.pricePerDay}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Mode of Payment:</strong> {paymentMode || "GCash"}
-                </Typography>
-                <hr />
-                <Typography variant="body1">
-                  <strong>Owner Email Address:</strong> {carData.owner.email}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Pick Up Location:</strong> {carData.pickUpLocation}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Terms and Condition:</strong>{" "}
-                  {carData.termsAndConditions}
-                </Typography>
-                <div>
-                  <Typography variant="body1">
-                    <strong>Owner:</strong> {carData.owner.firstName}{" "}
-                    {carData.owner.lastName}
-                  </Typography>
-                </div>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleDialogClose} color="primary">
-                  Cancel
-                </Button>
-                <Button onClick={handleConfirmBooking} color="primary">
-                  Confirm
-                </Button>
-              </DialogActions>
-            </Dialog>
+<Dialog open={openDialog} onClose={handleDialogClose} fullWidth={true} maxWidth="lg">
+      <div className="row p-0 m-0">
+        <div className="col-12 col-md-6 p-0 m-0">
+          <DialogTitle className="w-100 text-start fs-3 fw-bold dark-blue-text ">
+            Confirm Your Booking
+          </DialogTitle>
+          
+      <DialogContent className="w-100 row px-4">
+      <Typography variant="h6" className="border-bottom mb-2">
+            <strong>Car</strong>
+          </Typography>
+          <Typography variant="body1 mb-2">
+            <strong>
+              <i className="fa fa-car"></i>
+            </strong>{" "}
+            {carData.brand} {carData.model} ({carData.year})
+          </Typography>
+          <Typography variant="body1 mb-2">
+            <strong>
+              <i className="fa fa-car-side"></i>
+            </strong>{" "}
+            {carData.vehicleType}
+          </Typography>
+          <Typography variant="body1 mb-2">
+            <strong>
+              <i className="fa fa-users"></i>
+            </strong>{" "}
+            {carData.seatCapacity} Capacity
+          </Typography>
+
+          <Typography variant="h6" className="border-bottom mt-4 mb-2">
+            <strong>Owner</strong>
+          </Typography>
+          <Typography variant="body3 mb-2">
+            <strong>
+              <i className="fa fa-location-dot fs-5 me-2"></i>
+            </strong>{" "}
+            Taguig City
+          </Typography>
+
+          <div>
+            <Typography variant="body3 mb-2">
+              <strong>
+                <i className="fa fa-user fs-5 me-2"></i>
+              </strong>{" "}
+              {carData.owner.firstName}{" "}{carData.owner.lastName}
+            </Typography>
+            <Typography variant="body3 mb-2">
+              <strong>
+                <i className="fa fa-envelope fs-5 me-2"></i>
+              </strong>{" "}
+              {carData.owner.email}
+            </Typography>
+            <Typography variant="body3 mb-2">
+            <strong className="d-flex gap-2 align-items-center mt-3">
+              <span>Description</span>
+            </strong>{" "}
+            {carData.description}
+          </Typography>
+          </div>
+      </DialogContent>
+        </div>
+        <div className="col-12 col-md-6 p-0 p-4 dark-blue-bg text-white">
+        <Typography variant="h5" className="border-bottom mb-3 pb-2">
+            <strong>Booking</strong>
+          </Typography>
+          <div
+            className="d-flex justify-content-between flex-column"
+            style={{height: "85%" }}
+          >
+            <div>
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Pick-up Date:</strong> <span>{pickupDate?.toLocaleString()}</span>
+              </Typography>
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Return Date:</strong> <span>{returnDate?.toLocaleString()}</span>
+              </Typography>
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Price Per Day:</strong> <span>₱{carData.pricePerDay}</span>
+              </Typography>
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Rental Day/s:</strong> <span>{rentalDays}</span>
+              </Typography>
+            </div>
+            <div className="border-top mt-4 pt-3">
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Total Payment:</strong> <strong>₱{rentalDays * carData.pricePerDay}</strong>
+              </Typography>
+              <Typography
+                variant="body1"
+                className="d-flex align-items-center justify-content-between mb-1"
+              >
+                <strong>Mode of Payment:</strong> <strong>{paymentMode}</strong>
+              </Typography>
+            </div>
+
+          </div>
+          
+        </div>
+        <div className="row px-0 m-0">
+          <div className="col-12 col-md-6">
+            {" "}
+          </div>
+          <DialogActions className="light-blue-bg col-12 col-md-6  dark-blue-bg text-white">
+          <Button onClick={handleDialogClose} className="fw-bold fs-6 text-danger">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmBooking} className="text-white fw-bold fs-6">
+            Confirm
+          </Button>
+        </DialogActions>    
+
+        </div>
+      </div>
+  
+    </Dialog>
+
           </div>
         </div>
       ) : (
